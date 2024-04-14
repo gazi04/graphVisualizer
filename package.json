@@ -1,0 +1,17 @@
+{
+  "name": "projektgraph",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "graphology": "^0.25.4",
+    "vis-network": "^9.1.9"
+  },
+  "type": "module"
+}

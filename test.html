@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Graph Visualization</title>
+    <script src="node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/graphology@1.0.0/dist/graphology.umd.js"></script>
+    <script src="grahpVisualizer.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="mynetwork"></div>
+
+    <!-- To use a Graph object -->
+    <script src="graphology/graphology.min.js"></script>
+    <script>
+        const g = new GraphVisualizer('mynetwork');
+
+        g.addNode(1, "a");
+        g.addNode(2, "i");
+        g.addNode(3, "r");
+        g.addNode(4, "j");
+
+        g.addEdge(1, 2, 9);
+        g.addEdge(3, 1, 22);
+        g.addEdge(2, 4, 3333333);
+        
+        g.createNetwork();
+    </script>
+</body>
+</html>
+

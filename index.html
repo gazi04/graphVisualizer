@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Graph Visualization</title>
+    <script src="node_modules/vis-network/standalone/umd/vis-network.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/graphology@1.0.0/dist/graphology.umd.js"></script>
+    <script src="grahpVisualizer.js"></script>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="grid">
+        <div class="navbar">
+            <button onclick="setGraphType('simple')">Simple Graph</button>
+            <button onclick="setGraphType('pseudo')">Pseudograph</button>
+            <button onclick="setGraphType('directed')">Directed Graph</button>
+            <button onclick="setGraphType('weighted')">Weighted Graph</button>
+            <div id="graphTypeIndicator">Current Graph Type: Simple Graph</div>
+        </div>
+
+        <div class="right">
+            <div id="mynetwork"></div>
+        </div>
+        
+        <div class="left">
+            <div class="terminal">
+                <div id="output"></div>
+                <input type="text" id="commandInput" class="input" autofocus>
+            </div>
+        </div>
+    </div>
+
+    <!-- To use a Graph object -->
+    <script src="graphology/graphology.min.js"></script>
+    <script>
+        const visualizer = new GraphVisualizer('mynetwork');
+        // By default the graph is a simple graph
+        const graph = new graphology.Graph({allowSelfLoops: false});
+        const pseudoGraph = new graphology.Graph({multi: true, allowSelfLoops: true});
+        const diagraph = new graphology.DirectedGraph();
+        const weightedGraph = new graphology.Graph({type: "undirected", weighted: true});
+        let currentGraphType = "simple"
+        
+        fetch('nodes.json')
+        .then(response => response.json())
+        .then(nodeData => {
+            nodeData.forEach(node => {
+                // A node in a simple graph has two main properties the id (for unique values, for distinciton) 
+                // and the label as a node attribute (for the end user, the name of the node that's displayed)
+                graph.addNode(node.id);
+                graph.setAttribute(node.id, node.label);
+
+                pseudoGraph.addNode(node.id);
+                pseudoGraph.setAttribute(node.id, node.label);
+
+                diagraph.addNode(node.id);
+                diagraph.setAttribute(node.id, node.label);
+
+                weightedGraph.addNode(node.id);
+                weightedGraph.setAttribute(node.id, node.label);
+
+                visualizer.addNode(node.id, node.label);
+            });
+
+            fetch("edges.json")
+            .then(response => response.json())
+            .then(edgeData => {
+                edgeData.forEach(edge => {
+                    if(!(edge.from === edge.to)){
+                        graph.addEdge(edge.from, edge.to);
+                        // By default the graph doesn't allow self loops, that's the reason why the line below
+                        // is inside the body of this if statement 
+                        visualizer.addEdge(edge.from, edge.to);
+                    }
+                    pseudoGraph.addEdge(edge.from, edge.to);
+                    diagraph.addDirectedEdge(edge.from, edge.to);
+                    weightedGraph.addEdge(edge.from, edge.to, {value: edge.weight});
+
+                    visualizer.createNetwork();
+                });
+            })
+            .catch(error => console.error("Error fetching edges:", error));
+        })
+        .catch(error => console.error('Error fetching nodes:', error));
+
+        function setGraphType(type){
+            if(type == "simple"){
+                currentGraphType = "simple";
+                visualizer.IsDirected = false;
+                visualizer.IsWeighted = false;
+                visualizer.HasLoops = false;
+
+                visualizer.clearNodes();
+                graph.forEachNode((node) => {visualizer.addNode(node, graph.getAttribute(node));});
+
+                visualizer.clearEdges();
+                graph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target, attr.value);});
+                visualizer.updateGraph();
+            }
+            else if(type == "pseudo"){
+                currentGraphType = "pseudo";
+                visualizer.IsDirected = false;
+                visualizer.IsWeighted = false;
+                visualizer.HasLoops = true;
+
+                visualizer.clearNodes();
+                pseudoGraph.forEachNode((node) => {visualizer.addNode(node, pseudoGraph.getAttribute(node));});
+
+                visualizer.clearEdges();
+                pseudoGraph.forEachEdge((edge, attr, source, target) => {visualizer.addEdge(source, target);});
+
+                visualizer.updateGraph();
+            }
+            else if(type == "directed"){
+                currentGraphType = "directed";
+                visualizer.IsDirected = true;
+                visualizer.IsWeighted = false;
+                visualizer.HasLoops = false;
+               
+                visualizer.clearNodes();
+                diagraph.forEachNode((node) => {visualizer.addNode(node, diagraph.getAttribute(node));}); 
+
+                visualizer.clearEdges();
+                diagraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target, attr.value);});
+                visualizer.updateGraph();
+            }
+            else if(type == "weighted"){
+                currentGraphType = "weighted";
+                visualizer.IsDirected = false;
+                visualizer.IsWeighted = true;
+                visualizer.HasLoops = false;
+
+                visualizer.clearNodes();
+                weightedGraph.forEachNode((node) => {visualizer.addNode(node, weightedGraph.getAttribute(node));});
+
+                visualizer.clearEdges();
+                weightedGraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdgeWithWeight(source, target, attr.value);});
+                visualizer.updateGraph();
+            }
+
+            document.getElementById("graphTypeIndicator").innerHTML = `Current Graph Type: 
+            ${currentGraphType.charAt(0).toUpperCase()+currentGraphType.slice(1)} Graph`;
+            visualizer.Network.redraw();
+        }
+    </script>
+    <script src="graph.js"></script>
+</body>
+</html>
