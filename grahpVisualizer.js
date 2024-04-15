@@ -42,18 +42,12 @@ class GraphVisualizer{
 
     removeEdge(startNode, endNode){
         const edgeId = this.findEdgeId(startNode, endNode);
-        const edgeid = this.findEdgeId(endNode, startNode);
-        // Remove the edge if found
         if (edgeId !== undefined) {
             this.Edges.remove(edgeId);
-            console.log(`Edge between nodes ${startNode} and ${endNode} removed successfully.`);
             setTimeout(500);
             this.Network.redraw();
             return;
         } 
-
-        console.error(`Edge between nodes ${startNode} and ${endNode} not found.`);
-        return;
     }
 
     createNetwork(){
@@ -80,7 +74,18 @@ class GraphVisualizer{
         this.createNetwork();
     }
 
+    // The purpose of this method is a solution for deleting edges where the edge is delete in the graph 
+    // structure but not in the visualizer so we rebuild(redraw)
     redrawGraph(graph){
-        console.log(currentGraphType)  
+        this.clearNodes();
+        graph.forEachNode((node) => {this.addNode(node, graph.getAttribute(node));});
+        this.clearEdges();
+
+        if(currentGraphType == "weighted")
+            graph.forEachEdge((edge, attr, source, target) =>{this.addEdgeWithWeight(source, target, attr.value);});
+        else
+            graph.forEachEdge((edge, attr, source, target) =>{this.addEdge(source, target);});
+
+        this.updateGraph();
     }
 }

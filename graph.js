@@ -1,7 +1,6 @@
-// Get the input field
 var input = document.getElementById("commandInput");
 
-// Execute the command when the user presses Enter
+
 input.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         executeCommand();
@@ -32,7 +31,7 @@ function executeCommand() {
             else{ nodeDegree(args[0], getCurrentGraph()); }
             break;
         case "fqinjet":
-            nodeNeighbours(args[0], getCurrentGraph());
+            printNodeNeighbours(args[0], getCurrentGraph());
             break;
         case "lidh":
             connectNodes(args[0], args[1], args[2], getCurrentGraph());
@@ -41,7 +40,7 @@ function executeCommand() {
             disconnectNodes(args[0], args[1], getCurrentGraph());
             break;
         case "t":
-            visualizer.redrawGraph()
+            visualizer.redrawGraph(getCurrentGraph());
             break;
         default:
             // Handle unknown command
@@ -66,45 +65,55 @@ function displayEdges(graph) {
     });
 }
 
-function disconnectNodes(fromNodeLabel, toNodeLabel, graph){
+function disconnectNodes(fromNode, toNode, graph){
+    // TODO: need to take into consideration the cases for the directed graph, for example if the edge
+    // a->b exists and the user try to delete a<-b(this edge doesn't exists) the system deletes the a->b edge
+
     const nodeData = graph._attributes;
 
-    // It validates the node parameters that are given
-    if(fromNodeLabel == null || toNodeLabel == null){
+    if(fromNode == null || toNode == null){
         addToOutput("Duhen te jepni dy nyje qe jane ne graf, per te lidhur ato.");
         return;
     }
 
-    // It finds the id of the starting and ending node, because for manipulation we need the id of the node
-    const fromNodeId = Object.keys(nodeData).find(key => nodeData[key] === fromNodeLabel);
-    const toNodeId = Object.keys(nodeData).find(key => nodeData[key] === toNodeLabel);
+    // We need the node id to operate with them 
+    const fromNodeId = Object.keys(nodeData).find(key => nodeData[key] === fromNode);
+    const toNodeId = Object.keys(nodeData).find(key => nodeData[key] === toNode);
 
-    if(fromNodeId == null){ addToOutput(`Nyja '${fromNodeLabel}' nuk gjendet ne graf.`); return;}
-    if(toNodeId == null){ addToOutput(`Nyja '${toNodeLabel}' nuk gjendet ne graf.`); return;}
+    if(fromNodeId == null){ addToOutput(`Nyja '${fromNode}' nuk gjendet ne graf.`); return;}
+    if(toNodeId == null){ addToOutput(`Nyja '${toNode}' nuk gjendet ne graf.`); return;}
 
-    if(graph.hasEdge(fromNodeId, toNodeId)){
+    if(currentGraphType == "directed"){
+        if(!graph.hasDirectedEdge(fromNodeId, toNodeId)){ addToOutput(`Nyja ${fromNode} dhe ${toNode} nuk jane te lidhura.`); return;}
+
         graph.dropEdge(fromNodeId, toNodeId);
         visualizer.removeEdge(parseInt(fromNodeId), parseInt(toNodeId));
-        console.log(`${fromNodeId} dhe ${toNodeId} jane qlidhur.`);
+        return;
     }
-    else if(graph.hasEdge(toNodeId, fromNodeId)){
+
+    try {
+        if(graph.hasEdge(fromNodeId, toNodeId)){
+            graph.dropEdge(fromNodeId, toNodeId);
+            visualizer.removeEdge(parseInt(fromNodeId), parseInt(toNodeId));
+            return;
+        }
+
         graph.dropEdge(toNodeId, fromNodeId);
         visualizer.removeEdge(parseInt(toNodeId), parseInt(fromNodeId));
-        console.log(`${toNodeId} dhe ${fromNodeId} jane qlidhur.`);
+        return;
+    } catch (error) {
+        addToOutput(`Nyja ${fromNode} dhe ${toNode} nuk jane te lidhura.`);
     }
-    else{ console.log(`Keto dy nyje nuk jane te lidhura.`); }
 }
 
 function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
     const nodeData = graph._attributes;
     
-    // Validates the nodes given
     if(fromNodeLabel == null || toNodeLabel == null){
         addToOutput("Duhen te jepni dy nyje qe jane ne graf, per te lidhur ato.");
         return;
     }
 
-    //  It checks if the nodes are the same if so they are not allowed in a simple graph
     if((fromNodeLabel == toNodeLabel) && currentGraphType == "simple"){
         addToOutput("Ne nje graf te thjesht nuk lejohen laqet.");
         return;
@@ -139,15 +148,15 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
     try {
         if(currentGraphType == "weighted"){
             graph.addEdge(fromNodeId, toNodeId, {value: weight});
-            visualizer.addEdgeWithWeight(fromNodeId,  toNodeId, weight)
+            visualizer.addEdgeWithWeight(parseInt(fromNodeId),  parseInt(toNodeId), weight)
+            addToOutput("Lidhja eshte kryer me sukses.");
+            return;
         }
-        else{
-            graph.addEdge(fromNodeId, toNodeId);
-            visualizer.addEdge(fromNodeId, toNodeId);
-        } 
+
+        graph.addEdge(fromNodeId, toNodeId);
+        visualizer.addEdge(parseInt(fromNodeId), parseInt(toNodeId));
         addToOutput("Lidhja eshte kryer me sukses.");
     } catch (error) {
-        console.error("Error adding edge:", error);
         addToOutput("Gabim gjate lidhjes se nyjeve.");
     } 
 }
@@ -176,37 +185,36 @@ function addNode(args, graph){
 }
 
 // The label is for the node, typeGraph is one the types of graphs where the node is in 
-function nodeDegree(label, graph){
+function nodeDegree(node, graph){
     const nodeData = graph._attributes;
-
-    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === label);
+    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === node);
     
     if(nodeId == undefined){
-        addToOutput(`Nyja '${label}' nuk gjendet ne graf.`)
+        addToOutput(`Nyja '${node}' nuk gjendet ne graf.`)
         return;
     }
-    addToOutput(`Nyje '${label}' ka shkallen: `+ graph.degree(nodeId));
+
+    addToOutput(`Nyje '${node}' ka shkallen: `+ graph.degree(nodeId));
 }
 
-function nodeNeighbours(label, graph){
+function printNodeNeighbours(node, graph){
     const nodeData = graph._attributes;
-    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === label);
+    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === node);
 
     if(!graph.hasNode(nodeId)){
-        addToOutput(`Nyja '${label}' nuk gjendet ne graf.`);
+        addToOutput(`Nyja '${node}' nuk gjendet ne graf.`);
         return;
     }
 
-    if(graph.hasNode(nodeId)){
-        const neighbors = graph.neighbors(nodeId);
-        let text = `Fqinjet e nyjes ${nodeData[nodeId]} jane: `;
+    const neighbors = graph.neighbors(nodeId);
+    let text = `Fqinjet e nyjes ${nodeData[nodeId]} jane: `;
 
-        for (let i = 0; i < neighbors.length; i++) {
-            text += nodeData[neighbors[i]];
-            if (i < neighbors.length - 1) {
-                text += ', '; 
-            }
+    for (let i = 0; i < neighbors.length; i++) {
+        text += nodeData[neighbors[i]];
+        if (i < neighbors.length - 1) {
+            text += ', '; 
         }
-        addToOutput(text);
     }
+
+    addToOutput(text);
 }

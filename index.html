@@ -95,7 +95,7 @@
                 graph.forEachNode((node) => {visualizer.addNode(node, graph.getAttribute(node));});
 
                 visualizer.clearEdges();
-                graph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target, attr.value);});
+                graph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
             }
             else if(type == "pseudo"){
@@ -109,7 +109,6 @@
 
                 visualizer.clearEdges();
                 pseudoGraph.forEachEdge((edge, attr, source, target) => {visualizer.addEdge(source, target);});
-
                 visualizer.updateGraph();
             }
             else if(type == "directed"){
@@ -122,7 +121,7 @@
                 diagraph.forEachNode((node) => {visualizer.addNode(node, diagraph.getAttribute(node));}); 
 
                 visualizer.clearEdges();
-                diagraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target, attr.value);});
+                diagraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
             }
             else if(type == "weighted"){
