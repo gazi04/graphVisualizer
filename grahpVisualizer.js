@@ -44,10 +44,17 @@ class GraphVisualizer{
         const edgeId = this.findEdgeId(startNode, endNode);
         if (edgeId !== undefined) {
             this.Edges.remove(edgeId);
-            setTimeout(500);
-            this.Network.redraw();
+            // this.Network.redraw();
             return;
         } 
+        
+        try {
+            this.Edges.remove(this.findEdgeId(endNode, startNode));
+            // this.Network.redraw();
+            return;
+        } catch (error) {
+            console.log(error); 
+        }
     }
 
     createNetwork(){

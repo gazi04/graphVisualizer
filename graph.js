@@ -66,9 +66,6 @@ function displayEdges(graph) {
 }
 
 function disconnectNodes(fromNode, toNode, graph){
-    // TODO: need to take into consideration the cases for the directed graph, for example if the edge
-    // a->b exists and the user try to delete a<-b(this edge doesn't exists) the system deletes the a->b edge
-
     const nodeData = graph._attributes;
 
     if(fromNode == null || toNode == null){
@@ -76,7 +73,6 @@ function disconnectNodes(fromNode, toNode, graph){
         return;
     }
 
-    // We need the node id to operate with them 
     const fromNodeId = Object.keys(nodeData).find(key => nodeData[key] === fromNode);
     const toNodeId = Object.keys(nodeData).find(key => nodeData[key] === toNode);
 
@@ -84,23 +80,22 @@ function disconnectNodes(fromNode, toNode, graph){
     if(toNodeId == null){ addToOutput(`Nyja '${toNode}' nuk gjendet ne graf.`); return;}
 
     if(currentGraphType == "directed"){
-        if(!graph.hasDirectedEdge(fromNodeId, toNodeId)){ addToOutput(`Nyja ${fromNode} dhe ${toNode} nuk jane te lidhura.`); return;}
+        if(!graph.hasDirectedEdge(fromNodeId, toNodeId)){ addToOutput(`Nyja ${fromNode} nuk eshte e lidhur me nyjen ${toNode}.`); return;}
 
         graph.dropEdge(fromNodeId, toNodeId);
-        visualizer.removeEdge(parseInt(fromNodeId), parseInt(toNodeId));
+        visualizer.removeEdge(fromNodeId, toNodeId);
         return;
     }
 
     try {
         if(graph.hasEdge(fromNodeId, toNodeId)){
             graph.dropEdge(fromNodeId, toNodeId);
-            visualizer.removeEdge(parseInt(fromNodeId), parseInt(toNodeId));
-            return;
+            visualizer.removeEdge(fromNodeId, toNodeId);
         }
-
-        graph.dropEdge(toNodeId, fromNodeId);
-        visualizer.removeEdge(parseInt(toNodeId), parseInt(fromNodeId));
-        return;
+        else{
+            graph.dropEdge(toNodeId, fromNodeId);
+            visualizer.removeEdge(toNodeId, fromNodeId);
+        }
     } catch (error) {
         addToOutput(`Nyja ${fromNode} dhe ${toNode} nuk jane te lidhura.`);
     }
@@ -148,13 +143,13 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
     try {
         if(currentGraphType == "weighted"){
             graph.addEdge(fromNodeId, toNodeId, {value: weight});
-            visualizer.addEdgeWithWeight(parseInt(fromNodeId),  parseInt(toNodeId), weight)
+            visualizer.addEdgeWithWeight(fromNodeId, toNodeId, weight)
             addToOutput("Lidhja eshte kryer me sukses.");
             return;
         }
 
         graph.addEdge(fromNodeId, toNodeId);
-        visualizer.addEdge(parseInt(fromNodeId), parseInt(toNodeId));
+        visualizer.addEdge(fromNodeId, toNodeId);
         addToOutput("Lidhja eshte kryer me sukses.");
     } catch (error) {
         addToOutput("Gabim gjate lidhjes se nyjeve.");
@@ -169,7 +164,6 @@ function addNode(args, graph){
         return;
     } 
     
-    // Checking if the given label is used, if there is an existing node with that label don't add it in the graph
     const nodeIdExists = Object.keys(nodeData).find(key => nodeData[key] === args[0])
     if(nodeIdExists !== undefined){
         addToOutput(`Nyja '${args[0]}' ekziston tashme ne graf.`);
@@ -181,7 +175,7 @@ function addNode(args, graph){
     graph.addNode(nodeId);
     graph.setAttribute(nodeId, args[0]);
     visualizer.addNode(nodeId, args[0]);
-    visualizer.Network.redraw();
+    // visualizer.Network.redraw();
 }
 
 // The label is for the node, typeGraph is one the types of graphs where the node is in 

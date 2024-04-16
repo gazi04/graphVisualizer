@@ -71,7 +71,7 @@
                         graph.addEdge(edge.from, edge.to);
                         // By default the graph doesn't allow self loops, that's the reason why the line below
                         // is inside the body of this if statement 
-                        visualizer.addEdge(edge.from, edge.to);
+                        visualizer.addEdge(edge.from.toString(), edge.to.toString());
                     }
                     pseudoGraph.addEdge(edge.from, edge.to);
                     diagraph.addDirectedEdge(edge.from, edge.to);
