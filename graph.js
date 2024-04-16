@@ -1,6 +1,5 @@
 var input = document.getElementById("commandInput");
 
-
 input.addEventListener("keydown", function(event) {
     if (event.key === "Enter") {
         executeCommand();
@@ -16,7 +15,6 @@ function addToOutput(text){
 function executeCommand() {
     var userInput = input.value.trim().toLowerCase();
 
-    // Split the user input into command and arguments
     var parts = userInput.split(' ');
     var command = parts[0];
     var args = parts.slice(1);
@@ -39,11 +37,16 @@ function executeCommand() {
         case "qlidh":
             disconnectNodes(args[0], args[1], getCurrentGraph());
             break;
-        case "t":
-            visualizer.redrawGraph(getCurrentGraph());
+        case "dijkstra":
+            break;
+        case "matrica-fqinjesis":
+            const matrix = adjacencyMatrix(getCurrentGraph());
+            const matrixToString = matrix.map(row => row.join("\t")).join("\n");
+            addToOutput(matrixToString);
+            break;
+        case "matrica incidences":
             break;
         default:
-            // Handle unknown command
             addToOutput('Unknown command:' + command);
     }
 
@@ -114,7 +117,6 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
         return;
     }
 
-    // It validates the weight parameter if it is an integer for the weighted graph
     if(currentGraphType == "weighted" && weight != null){
         weight = parseInt(weight);
         if(!Number.isInteger(weight)) {
@@ -127,15 +129,8 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
         return;
     } 
 
-    // It finds the id of the starting and ending node, because for manipulation we need the id of the node
     const fromNodeId = Object.keys(nodeData).find(key => nodeData[key] === fromNodeLabel);
     const toNodeId = Object.keys(nodeData).find(key => nodeData[key] === toNodeLabel);
-
-    // Check if an edge already exists from fromNode to toNode for the simple graph
-    // if ((graph.hasDirectedEdge(fromNodeId, toNodeId) || graph.hasDirectedEdge(toNodeId, fromNodeId)) && currentGraphType == "simple") {
-    //     addToOutput(`Ekziston brinja qe lidh nyjen '${fromNodeLabel}' me '${toNodeLabel}'.`);
-    //     return;
-    // }
 
     if(fromNodeId == null){ addToOutput(`Nyja '${fromNodeLabel}' nuk gjendet ne graf.`); return;}
     if(toNodeId == null){ addToOutput(`Nyja '${toNodeLabel}' nuk gjendet ne graf.`); return;}
@@ -175,10 +170,8 @@ function addNode(args, graph){
     graph.addNode(nodeId);
     graph.setAttribute(nodeId, args[0]);
     visualizer.addNode(nodeId, args[0]);
-    // visualizer.Network.redraw();
 }
 
-// The label is for the node, typeGraph is one the types of graphs where the node is in 
 function nodeDegree(node, graph){
     const nodeData = graph._attributes;
     const nodeId = Object.keys(nodeData).find(key => nodeData[key] === node);
@@ -209,6 +202,42 @@ function printNodeNeighbours(node, graph){
             text += ', '; 
         }
     }
-
     addToOutput(text);
 }
+
+function adjacencyMatrix(graph) {
+    const nodeData = graph._attributes;
+    const nodes = Object.keys(nodeData);
+    const matrix = [];
+
+    // Initialize the matrix with zeros
+    for (let i = -1; i < nodes.length; i++) {
+        matrix[i + 1] = [];
+        for (let j = -1; j < nodes.length; j++) {
+            if (i === -1 && j === -1) {
+                matrix[i + 1][j + 1] = '';
+            } else if (i === -1) {
+                matrix[i + 1][j + 1] = nodeData[nodes[j]];
+            } else if (j === -1) {
+                matrix[i + 1][j + 1] = nodeData[nodes[i]];
+            } else {
+                matrix[i + 1][j + 1] = 0;
+            }
+        }
+    }
+
+    // Fill the matrix based on the graph connections
+    for (let i = 0; i < nodes.length; i++) {
+        const nodeId = nodes[i];
+        const neighbors = graph.neighbors(nodeId);
+
+        for (let j = 0; j < neighbors.length; j++) {
+            const neighborId = neighbors[j];
+            const neighborIndex = nodes.indexOf(neighborId);
+            matrix[i + 1][neighborIndex + 1] = 1;
+        }
+    }
+
+    return matrix;
+}
+

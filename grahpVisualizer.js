@@ -80,19 +80,4 @@ class GraphVisualizer{
         this.removeLoops();
         this.createNetwork();
     }
-
-    // The purpose of this method is a solution for deleting edges where the edge is delete in the graph 
-    // structure but not in the visualizer so we rebuild(redraw)
-    redrawGraph(graph){
-        this.clearNodes();
-        graph.forEachNode((node) => {this.addNode(node, graph.getAttribute(node));});
-        this.clearEdges();
-
-        if(currentGraphType == "weighted")
-            graph.forEachEdge((edge, attr, source, target) =>{this.addEdgeWithWeight(source, target, attr.value);});
-        else
-            graph.forEachEdge((edge, attr, source, target) =>{this.addEdge(source, target);});
-
-        this.updateGraph();
-    }
 }
