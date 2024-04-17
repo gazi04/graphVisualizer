@@ -6,11 +6,17 @@ input.addEventListener("keydown", function(event) {
     }
 });
 
-function addToOutput(text){
+function addToOutput(text) {
     const outputDiv = document.getElementById("output");
-    outputDiv.innerHTML += `<div>${text}</div>`;
+    if (Array.isArray(text)) {
+        const matrixString = text.map(row => row.join('\t')).join('\n');
+        outputDiv.innerHTML += `<pre>${matrixString}</pre>`;
+    } else {
+        outputDiv.innerHTML += `<div>${text}</div>`;
+    }
     outputDiv.scrollTop = output.scrollHeight;
 }
+
 
 function executeCommand() {
     var userInput = input.value.trim().toLowerCase();
@@ -44,7 +50,7 @@ function executeCommand() {
             const matrixToString = matrix.map(row => row.join("\t")).join("\n");
             addToOutput(matrixToString);
             break;
-        case "matrica incidences":
+        case "matrica-incidences":
             break;
         default:
             addToOutput('Unknown command:' + command);
@@ -241,3 +247,38 @@ function adjacencyMatrix(graph) {
     return matrix;
 }
 
+function incidenceMatrix(graph) {
+    const nodeData = graph._attributes;
+    const nodes = Object.keys(nodeData);
+    const edges = graph.edges();
+    const matrix = [];
+
+    // Initialize the matrix with zeros
+    for (let i = 0; i < nodes.length; i++) {
+        matrix[i] = [nodeData[nodes[i]]];
+        for (let j = 1; j < edges.length+1; j++) {
+            matrix[i][j] = 0;
+        }
+    }
+
+    return matrix;
+
+    // Fill the matrix based on the graph connections
+    for (let j = 0; j < edges.length; j++) {
+        const edge = edges[j];
+        const fromNode = edge[0];
+        const toNode = edge[1];
+
+        const fromNodeIndex = nodes.indexOf(fromNode);
+        const toNodeIndex = nodes.indexOf(toNode);
+
+        if (fromNodeIndex !== -1) {
+            matrix[fromNodeIndex][j] = 1;
+        }
+        if (toNodeIndex !== -1) {
+            matrix[toNodeIndex][j] = 1;
+        }
+    }
+
+    return matrix;
+}
