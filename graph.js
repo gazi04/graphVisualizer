@@ -46,11 +46,10 @@ function executeCommand() {
         case "dijkstra":
             break;
         case "matrica-fqinjesis":
-            const matrix = adjacencyMatrix(getCurrentGraph());
-            const matrixToString = matrix.map(row => row.join("\t")).join("\n");
-            addToOutput(matrixToString);
+            addToOutput(adjacencyMatrix(getCurrentGraph()));
             break;
         case "matrica-incidences":
+            addToOutput(incidenceMatrix(getCurrentGraph()));
             break;
         default:
             addToOutput('Unknown command:' + command);
@@ -202,7 +201,7 @@ function printNodeNeighbours(node, graph){
     const neighbors = graph.neighbors(nodeId);
     let text = `Fqinjet e nyjes ${nodeData[nodeId]} jane: `;
 
-    for (let i = 0; i < neighbors.length; i++) {
+    for(let i = 0; i < neighbors.length; i++) {
         text += nodeData[neighbors[i]];
         if (i < neighbors.length - 1) {
             text += ', '; 
@@ -216,8 +215,7 @@ function adjacencyMatrix(graph) {
     const nodes = Object.keys(nodeData);
     const matrix = [];
 
-    // Initialize the matrix with zeros
-    for (let i = -1; i < nodes.length; i++) {
+    for(let i = -1; i < nodes.length; i++) {
         matrix[i + 1] = [];
         for (let j = -1; j < nodes.length; j++) {
             if (i === -1 && j === -1) {
@@ -232,12 +230,11 @@ function adjacencyMatrix(graph) {
         }
     }
 
-    // Fill the matrix based on the graph connections
-    for (let i = 0; i < nodes.length; i++) {
+    for(let i = 0; i < nodes.length; i++) {
         const nodeId = nodes[i];
         const neighbors = graph.neighbors(nodeId);
 
-        for (let j = 0; j < neighbors.length; j++) {
+        for(let j = 0; j < neighbors.length; j++) {
             const neighborId = neighbors[j];
             const neighborIndex = nodes.indexOf(neighborId);
             matrix[i + 1][neighborIndex + 1] = 1;
@@ -253,31 +250,35 @@ function incidenceMatrix(graph) {
     const edges = graph.edges();
     const matrix = [];
 
-    // Initialize the matrix with zeros
-    for (let i = 0; i < nodes.length; i++) {
+    for(let i = 0; i < nodes.length; i++) {
         matrix[i] = [nodeData[nodes[i]]];
-        for (let j = 1; j < edges.length+1; j++) {
-            matrix[i][j] = 0;
-        }
+        for (let j = 1; j < edges.length+1; j++) { matrix[i][j] = 0; }
     }
 
-    return matrix;
+    // 
+    if(currentGraphType == "directed"){
+        for(let row = 0; row < nodes.length; row++){
+            let col = 1;
+            graph.forEachEdge((edge, attributes, source, target) => {
+                if(nodes[row] == source) matrix[row][col] = 1;
+                else if(nodes[row] == target) matrix[row][col] = -1;
 
-    // Fill the matrix based on the graph connections
-    for (let j = 0; j < edges.length; j++) {
-        const edge = edges[j];
-        const fromNode = edge[0];
-        const toNode = edge[1];
-
-        const fromNodeIndex = nodes.indexOf(fromNode);
-        const toNodeIndex = nodes.indexOf(toNode);
-
-        if (fromNodeIndex !== -1) {
-            matrix[fromNodeIndex][j] = 1;
+                col++;
+            });
         }
-        if (toNodeIndex !== -1) {
-            matrix[toNodeIndex][j] = 1;
-        }
+
+        return matrix;
+    }
+
+    for(let row = 0; row < nodes.length; row++){
+        let col = 1;
+        graph.forEachEdge((edge, attributes, source, target) => {
+            if(nodes[row] == source && nodes[row] == target) matrix[row][col] = 2;
+            else if(nodes[row] == source) matrix[row][col] = 1;
+            else if(nodes[row] == target) matrix[row][col] = 1;
+            
+            col++;
+        })
     }
 
     return matrix;
