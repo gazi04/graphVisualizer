@@ -38,8 +38,8 @@
         // By default the graph is a simple graph
         const graph = new graphology.Graph({allowSelfLoops: false});
         const pseudoGraph = new graphology.Graph({multi: true, allowSelfLoops: true});
-        const diagraph = new graphology.DirectedGraph();
-        const weightedGraph = new graphology.Graph({type: "undirected", weighted: true});
+        const diagraph = new graphology.DirectedGraph({allowSelfLoops: false});
+        const weightedGraph = new graphology.Graph({type: "undirected", weighted: true, allowSelfLoops: false});
         let currentGraphType = "simple"
         
         fetch('nodes.json')
