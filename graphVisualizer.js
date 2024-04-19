@@ -24,6 +24,13 @@ class GraphVisualizer{
         return edges.length > 0 ? edges[0].id : undefined;
     }
 
+    getNodeIdByLabel(label){
+        const nodes = this.Nodes.get();
+        for(node in nodes){
+            if(node.label === label) return node.id
+        }
+    }
+
     removeWeightFromEdges(){
         if(!this.IsWeighted){
             this.Edges.forEach(edge => {
