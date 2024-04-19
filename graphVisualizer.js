@@ -80,6 +80,47 @@ class GraphVisualizer{
         this.removeLoops();
         this.createNetwork();
     }
+
+    dijkstra(graph, startNodeId, endNodeId) {
+        var distances = {};
+        var shortestPaths = {};
+        var queue = new PriorityQueue();
+        distances[startNodeId] = 0;
+        queue.enqueue(startNodeId, 0);
+
+        graph.nodes().forEach(function(nodeId) {
+            if (nodeId !== startNodeId) {
+                distances[nodeId] = Infinity;
+                shortestPaths[nodeId] = null;
+            }
+        });
+
+        while (!queue.isEmpty()) {
+            var currentNodeId = queue.dequeue().element;
+            var neighbors = graph.neighbors(currentNodeId);
+
+            neighbors.forEach(function(neighborId) {
+                var edge = graph.getEdgeAttributes(currentNodeId, neighborId);
+                var distanceToNeighbor = distances[currentNodeId] + (edge ? edge.weight : 1);
+
+                if (distanceToNeighbor < distances[neighborId]) {
+                    distances[neighborId] = distanceToNeighbor;
+                    shortestPaths[neighborId] = currentNodeId;
+                    queue.enqueue(neighborId, distanceToNeighbor);
+                }
+            });
+        }
+
+        var path = [];
+        var currentNode = endNodeId;
+        while (currentNode !== null) {
+            path.unshift(currentNode);
+            currentNode = shortestPaths[currentNode];
+        }
+
+        var formattedPath = path.join(')->(');
+        return '(' + formattedPath + ')';
+    }
 }
 
 class PriorityQueue {
