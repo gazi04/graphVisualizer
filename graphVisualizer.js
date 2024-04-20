@@ -24,11 +24,23 @@ class GraphVisualizer{
         return edges.length > 0 ? edges[0].id : undefined;
     }
 
-    getNodeIdByLabel(label){
+    findNodeIdByLabel(label){
         const nodes = this.Nodes.get();
-        for(node in nodes){
-            if(node.label === label) return node.id
+        for (const node of nodes) {
+            if(node.label == label){return node.id}
         }
+        return null;
+    }
+
+    findNodeLabelById(id){
+        const node = this.Nodes.get();
+        for(const node of nodes){
+            if(node.id == id){return node.label}
+        }
+    }
+
+    doesNodeExists(label){;
+        return this.findNodeIdByLabel(label) != null ? true: false;
     }
 
     removeWeightFromEdges(){
@@ -88,45 +100,59 @@ class GraphVisualizer{
         this.createNetwork();
     }
 
-    dijkstra(graph, startNodeId, endNodeId) {
-        var distances = {};
-        var shortestPaths = {};
-        var queue = new PriorityQueue();
-        distances[startNodeId] = 0;
-        queue.enqueue(startNodeId, 0);
+    dijkstrasAlgorithm(startNodeLabel, endNodeLabel) {
+        const startNodeId = this.findNodeIdByLabel(startNodeLabel);
+        const endNodeId = this.findNodeIdByLabel(endNodeLabel);
 
-        graph.nodes().forEach(function(nodeId) {
-            if (nodeId !== startNodeId) {
-                distances[nodeId] = Infinity;
-                shortestPaths[nodeId] = null;
-            }
+        // Initialize distances with infinity for all nodes except the start node
+        const distances = {};
+        this.Nodes.forEach(node => {
+            distances[node.id] = node.id === startNodeId ? 0 : Infinity;
         });
 
+        const visited = new Set();
+        const queue = new PriorityQueue();
+
+        queue.enqueue(startNodeId, 0);
+
+        const previous = {};
+
         while (!queue.isEmpty()) {
-            var currentNodeId = queue.dequeue().element;
-            var neighbors = graph.neighbors(currentNodeId);
+            const currentNodeId = queue.dequeue().element;
 
-            neighbors.forEach(function(neighborId) {
-                var edge = graph.getEdgeAttributes(currentNodeId, neighborId);
-                var distanceToNeighbor = distances[currentNodeId] + (edge ? edge.weight : 1);
+            if (currentNodeId === endNodeId) {
+                let path = [];
+                let current = endNodeId;
+                while (current !== startNodeId) {
+                    path.unshift(current);
+                    current = previous[current];
+                }
+                path.unshift(startNodeId);
+                // TODO: it returns the path with node id, take into consideration to convert them into their respective node labe
+                return console.log(path, distances[endNodeId]);
+            }
 
-                if (distanceToNeighbor < distances[neighborId]) {
-                    distances[neighborId] = distanceToNeighbor;
-                    shortestPaths[neighborId] = currentNodeId;
-                    queue.enqueue(neighborId, distanceToNeighbor);
+            visited.add(currentNodeId);
+
+            const neighbors = this.Network.getConnectedNodes(currentNodeId);
+            neighbors.forEach(neighborId => {
+                if (!visited.has(neighborId)) {
+                    const edge = this.Edges.get({
+                        filter: item => (item.from === currentNodeId && item.to === neighborId) ||
+                            (item.to === currentNodeId && item.from === neighborId)
+                    })[0];
+                    const weight = edge ? parseInt(edge.label || 1) : 1;
+                    const distanceToNeighbor = distances[currentNodeId] + weight;
+                    if (distanceToNeighbor < distances[neighborId]) {
+                        distances[neighborId] = distanceToNeighbor;
+                        previous[neighborId] = currentNodeId;
+                        queue.enqueue(neighborId, distanceToNeighbor);
+                    }
                 }
             });
         }
 
-        var path = [];
-        var currentNode = endNodeId;
-        while (currentNode !== null) {
-            path.unshift(currentNode);
-            currentNode = shortestPaths[currentNode];
-        }
-
-        var formattedPath = path.join(')->(');
-        return '(' + formattedPath + ')';
+        return console.log("Path not found.");
     }
 }
 
