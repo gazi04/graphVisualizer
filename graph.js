@@ -44,6 +44,7 @@ function executeCommand() {
             disconnectNodes(args[0], args[1], getCurrentGraph());
             break;
         case "dijkstra":
+            // TODO: check if the start and destination node exists
             break;
         case "matrica-fqinjesis":
             addToOutput(adjacencyMatrix(getCurrentGraph()));
@@ -255,7 +256,6 @@ function incidenceMatrix(graph) {
         for (let j = 1; j < edges.length+1; j++) { matrix[i][j] = 0; }
     }
 
-    // 
     if(currentGraphType == "directed"){
         for(let row = 0; row < nodes.length; row++){
             let col = 1;
