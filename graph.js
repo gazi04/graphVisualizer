@@ -44,7 +44,25 @@ function executeCommand() {
             disconnectNodes(args[0], args[1], getCurrentGraph());
             break;
         case "dijkstra":
-            // TODO: check if the start and destination node exists
+            if(currentGraphType != "weighted"){
+                addToOutput("Duhet te selektohet grafi me peshe.");break; 
+            }
+
+            if(args[0] == "" || args[1] == ""){
+                addToOutput("Duhen te jepen dy nyje, per te gjetur rrugen me te shkurter.");break;
+            }
+
+            if(!visualizer.doesNodeExists(args[0]) && !visualizer.doesNodeExists(args[1])){
+                addToOutput("Njera nga nyjet e dhena nuk ekzistion ne graf.");break;
+            }
+
+            const pathAndCost = visualizer.dijkstrasAlgorithm(args[0], args[1]);
+            addToOutput("Rruga me e shkurter eshte: " + pathAndCost[0]);
+            addToOutput("Me koston " + pathAndCost[1]); 
+            break;
+        case "shtegu-eulerit":
+            break;
+        case "qarku-eulerit":
             break;
         case "matrica-fqinjesis":
             addToOutput(adjacencyMatrix(getCurrentGraph()));
