@@ -129,7 +129,7 @@ class GraphVisualizer{
                 }
                 path.unshift(startNodeId);
                 // TODO: it returns the path with node id, take into consideration to convert them into their respective node labe
-                return console.log(path, distances[endNodeId]);
+                return [this.convertPathToLabels(path), distances[endNodeId]];
             }
 
             visited.add(currentNodeId);
@@ -153,6 +153,17 @@ class GraphVisualizer{
         }
 
         return console.log("Path not found.");
+    }
+
+    convertPathToLabels(path) {
+        const labels = [];
+        path.forEach(nodeId => {
+            const node = this.Nodes.get(nodeId);
+            if (node) {
+                labels.push(node.label);
+            }
+        });
+        return labels.join("->");
     }
 }
 
