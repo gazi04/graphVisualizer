@@ -61,6 +61,7 @@ function executeCommand() {
             addToOutput("Me koston " + pathAndCost[1]); 
             break;
         case "shtegu-eulerit":
+
             break;
         case "qarku-eulerit":
             break;
@@ -300,4 +301,46 @@ function incidenceMatrix(graph) {
     }
 
     return matrix;
+}
+
+function findEulerianPath(graph) {
+    // ! the given graph is going to be modified, more specific all the edges will be deleted 
+    const eulerianPath = [];
+    const startNode = getRandomNode(graph);
+    dfs(startNode);
+
+    // Check if all edges have been visited
+    for (const edge of graph.edges()) {
+        if (!graph.getEdgeAttribute(edge, 'visited')) {
+            // If there are unvisited edges, the graph is not Eulerian
+            return null;
+        }
+    }
+
+    return eulerianPath;
+
+    function dfs(node) {
+        const outNeighbors = graph.outNeighbors(node);
+        for (const neighbor of outNeighbors) {
+            const edge = graph.getEdgeAttributes(node, neighbor);
+
+            // Mark the edge as visited
+            graph.setEdgeAttribute(node, neighbor, 'visited', true);
+
+            // Remove the edge from the graph
+            graph.dropEdge(node, neighbor);
+
+            // Recursively visit the neighbor
+            dfs(neighbor);
+        }
+
+        // Add the node to the Eulerian path
+        eulerianPath.unshift(node);
+    }
+
+    function getRandomNode(graph) {
+        const nodes = graph.nodes();
+        const randomIndex = Math.floor(Math.random() * nodes.length);
+        return nodes[randomIndex];
+    }
 }
