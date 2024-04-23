@@ -165,6 +165,48 @@ class GraphVisualizer{
         });
         return labels.join("->");
     }
+
+    findEulerianPath() {
+        const visitedEdges = new Set();
+        const eulerianPath = [];
+
+        // Find a random starting node
+        let currentNodeId = this.Nodes.getIds()[0];
+
+        while (currentNodeId) {
+            // Get all the neighbors of the current node
+            const neighbors = this.Network.getConnectedNodes(currentNodeId);
+
+            // Find an unvisited edge from the current node
+            let nextEdge;
+            for (const neighborId of neighbors) {
+                const edgeId = this.findEdgeId(currentNodeId, neighborId);
+                if (edgeId && !visitedEdges.has(edgeId)) {
+                    nextEdge = { from: currentNodeId, to: neighborId, id: edgeId };
+                    break;
+                }
+            }
+
+            if (nextEdge) {
+                // Mark the edge as visited
+                visitedEdges.add(nextEdge.id);
+                eulerianPath.push(nextEdge);
+
+                // Move to the next node
+                currentNodeId = nextEdge.to;
+            } else {
+                // No unvisited edges from the current node, backtrack
+                break;
+            }
+        }
+
+        // Check if all edges have been visited
+        const allEdgesVisited = this.Edges.getIds().every(edgeId => visitedEdges.has(edgeId));
+
+        // If all edges have been visited, return the Eulerian path
+        // Otherwise, the graph does not have an Eulerian path
+        return allEdgesVisited ? eulerianPath : null;
+    }
 }
 
 class PriorityQueue {
