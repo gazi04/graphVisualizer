@@ -11,13 +11,13 @@ class GraphVisualizer{
 
     // From here are the function for graph manipulation
     addNode(nodeId, nodeLabel){this.Nodes.add({id: nodeId, label: nodeLabel});}
-
     // startNode and endNode are the nodeId, the vis.js library identifies the nodes by the id
     // weight take an integer but to display with weight the vis.js library needs string values and not int 
     addEdge(startNode, endNode){this.Edges.add({from: startNode, to: endNode});}
     addEdgeWithWeight(startNode, endNode, weight){this.Edges.add({from: startNode, to: endNode, label: weight.toString()});}
     clearEdges(){this.Edges.clear();}
     clearNodes(){this.Nodes.clear();}
+    getRandomNode(){return this.Nodes.getIds()[Math.floor(Math.random() * this.Nodes.length)];}
 
     findEdgeId(startNode, endNode) {
         const edges = this.Edges.get({ filter: edge => edge.from === startNode && edge.to === endNode });
@@ -37,6 +37,14 @@ class GraphVisualizer{
         for(const node of nodes){
             if(node.id == id){return node.label}
         }
+    }
+
+    getNodeDegree(nodeId){
+        let degree = 0;
+        this.Edges.forEach(edge => {
+            if(edge.from == nodeId || edge.to == nodeId) degree+=1;
+        })
+        return degree;
     }
 
     doesNodeExists(label){;
