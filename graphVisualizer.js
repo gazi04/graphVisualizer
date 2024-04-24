@@ -171,7 +171,7 @@ class GraphVisualizer{
         const eulerianPath = [];
 
         // Find a random starting node
-        let currentNodeId = this.Nodes.getIds()[0];
+        let currentNodeId = this.Nodes.getIds()[Math.floor(Math.random() * this.Nodes.length)];
 
         while (currentNodeId) {
             // Get all the neighbors of the current node
