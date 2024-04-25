@@ -1,24 +1,24 @@
 var input = document.getElementById("commandInput");
 
-input.addEventListener("keydown", function(event) {
-    if (event.key === "Enter") {
+input.addEventListener("keydown", function(event){
+    if (event.key === "Enter"){
         executeCommand();
     }
 });
 
-function addToOutput(text) {
+function addToOutput(text){
     const outputDiv = document.getElementById("output");
-    if (Array.isArray(text)) {
+    if (Array.isArray(text)){
         const matrixString = text.map(row => row.join('\t')).join('\n');
         outputDiv.innerHTML += `<pre>${matrixString}</pre>`;
-    } else {
+    } else{
         outputDiv.innerHTML += `<div>${text}</div>`;
     }
     outputDiv.scrollTop = output.scrollHeight;
 }
 
 
-function executeCommand() {
+function executeCommand(){
     var userInput = input.value.trim().toLowerCase();
 
     var parts = userInput.split(' ');
@@ -86,7 +86,7 @@ function getCurrentGraph(){
     if(currentGraphType == "weighted"){return weightedGraph;}
 }
 
-function displayEdges(graph) {
+function displayEdges(graph){
     graph.forEachEdge(
     (edge, attributes, source, target, sourceAttributes, targetAttributes) => {
         console.log(`Edge from ${source} to ${target}`);
@@ -115,7 +115,7 @@ function disconnectNodes(fromNode, toNode, graph){
         return;
     }
 
-    try {
+    try{
         if(graph.hasEdge(fromNodeId, toNodeId)){
             graph.dropEdge(fromNodeId, toNodeId);
             visualizer.removeEdge(fromNodeId, toNodeId);
@@ -124,7 +124,7 @@ function disconnectNodes(fromNode, toNode, graph){
             graph.dropEdge(toNodeId, fromNodeId);
             visualizer.removeEdge(toNodeId, fromNodeId);
         }
-    } catch (error) {
+    } catch (error){
         addToOutput(`Nyja ${fromNode} dhe ${toNode} nuk jane te lidhura.`);
     }
 }
@@ -144,7 +144,7 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
 
     if(currentGraphType == "weighted" && weight != null){
         weight = parseInt(weight);
-        if(!Number.isInteger(weight)) {
+        if(!Number.isInteger(weight)){
             addToOutput("Per peshen duhet te jepet nje numer i plote.");
             return;
         } 
@@ -160,7 +160,7 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
     if(fromNodeId == null){ addToOutput(`Nyja '${fromNodeLabel}' nuk gjendet ne graf.`); return;}
     if(toNodeId == null){ addToOutput(`Nyja '${toNodeLabel}' nuk gjendet ne graf.`); return;}
 
-    try {
+    try{
         if(currentGraphType == "weighted"){
             graph.addEdge(fromNodeId, toNodeId, {value: weight});
             visualizer.addEdgeWithWeight(fromNodeId, toNodeId, weight)
@@ -171,7 +171,7 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
         graph.addEdge(fromNodeId, toNodeId);
         visualizer.addEdge(fromNodeId, toNodeId);
         addToOutput("Lidhja eshte kryer me sukses.");
-    } catch (error) {
+    } catch (error){
         addToOutput("Gabim gjate lidhjes se nyjeve.");
     } 
 }
@@ -230,12 +230,12 @@ function printNodeNeighbours(node, graph){
     addToOutput(text);
 }
 
-function adjacencyMatrix(graph) {
+function adjacencyMatrix(graph){
     const nodeData = graph._attributes;
     const nodes = Object.keys(nodeData);
     const matrix = [];
 
-    for(let i = -1; i < nodes.length; i++) {
+    for(let i = -1; i < nodes.length; i++){
         matrix[i + 1] = [];
         for (let j = -1; j < nodes.length; j++) {
             if (i === -1 && j === -1) {
@@ -250,7 +250,7 @@ function adjacencyMatrix(graph) {
         }
     }
 
-    for(let i = 0; i < nodes.length; i++) {
+    for(let i = 0; i < nodes.length; i++){
         const nodeId = nodes[i];
         const neighbors = graph.neighbors(nodeId);
 
@@ -264,13 +264,13 @@ function adjacencyMatrix(graph) {
     return matrix;
 }
 
-function incidenceMatrix(graph) {
+function incidenceMatrix(graph){
     const nodeData = graph._attributes;
     const nodes = Object.keys(nodeData);
     const edges = graph.edges();
     const matrix = [];
 
-    for(let i = 0; i < nodes.length; i++) {
+    for(let i = 0; i < nodes.length; i++){
         matrix[i] = [nodeData[nodes[i]]];
         for (let j = 1; j < edges.length+1; j++) { matrix[i][j] = 0; }
     }
