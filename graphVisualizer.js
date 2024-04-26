@@ -9,6 +9,25 @@ class GraphVisualizer{
         this.Network;
     }
 
+    #cloneGraph(){
+        const cloneNodes = new vis.DataSet(this.Nodes.get());
+        const cloneEdges = new vis.DataSet(this.Edges.get());
+
+        const newGraph = new GraphVisualizer();
+        newGraph.Nodes = cloneNodes;
+        newGraph.Edges = cloneEdges;
+        
+        // const data = {
+        //     nodes: cloneNodes,
+        //     edges: cloneEdges
+        // }
+        // // TODO: in the isBridge function more specific in the isConnected function we are trying to get the neighbors from the Network attribute 
+        // // ! the problem the line below affects the original Network(this attribute is responsible for displaying the graph)
+        // newGraph.Network = new vis.Network(null, data, {});
+
+        return newGraph;
+    }
+
     // From here are the function for graph manipulation
     addNode(nodeId, nodeLabel){this.Nodes.add({id: nodeId, label: nodeLabel});}
     // startNode and endNode are the nodeId, the vis.js library identifies the nodes by the id
@@ -17,16 +36,18 @@ class GraphVisualizer{
     addEdgeWithWeight(startNode, endNode, weight){this.Edges.add({from: startNode, to: endNode, label: weight.toString()});}
     clearEdges(){this.Edges.clear();}
     clearNodes(){this.Nodes.clear();}
-    getRandomNode(){return this.Nodes.getIds()[Math.floor(Math.random() * this.Nodes.length)];}
 
-    findEdgeId(startNode, endNode) {
+    getRandomNode(){return this.Nodes.getIds()[Math.floor(Math.random() * this.Nodes.length)];}
+    doesNodeExists(label){return this.findNodeIdByLabel(label) != null ? true: false;}
+
+    findEdgeId(startNode, endNode){
         const edges = this.Edges.get({ filter: edge => edge.from === startNode && edge.to === endNode });
         return edges.length > 0 ? edges[0].id : undefined;
     }
 
     findNodeIdByLabel(label){
         const nodes = this.Nodes.get();
-        for (const node of nodes) {
+        for (const node of nodes){
             if(node.label == label){return node.id}
         }
         return null;
@@ -47,8 +68,16 @@ class GraphVisualizer{
         return degree;
     }
 
-    doesNodeExists(label){;
-        return this.findNodeIdByLabel(label) != null ? true: false;
+    getNeighbors(nodeId) {
+        const neighbors = [];
+        this.Edges.forEach(edge => {
+            if (edge.from === nodeId) {
+                neighbors.push(edge.to);
+            } else if (edge.to === nodeId) {
+                neighbors.push(edge.from);
+            }
+        });
+        return neighbors;
     }
 
     removeWeightFromEdges(){
@@ -69,17 +98,17 @@ class GraphVisualizer{
 
     removeEdge(startNode, endNode){
         const edgeId = this.findEdgeId(startNode, endNode);
-        if (edgeId !== undefined) {
+        if (edgeId !== undefined){
             this.Edges.remove(edgeId);
             // this.Network.redraw();
             return;
         } 
         
-        try {
+        try{
             this.Edges.remove(this.findEdgeId(endNode, startNode));
             // this.Network.redraw();
             return;
-        } catch (error) {
+        } catch (error){
             console.log(error); 
         }
     }
@@ -108,7 +137,7 @@ class GraphVisualizer{
         this.createNetwork();
     }
 
-    dijkstrasAlgorithm(startNodeLabel, endNodeLabel) {
+    dijkstrasAlgorithm(startNodeLabel, endNodeLabel){
         const startNodeId = this.findNodeIdByLabel(startNodeLabel);
         const endNodeId = this.findNodeIdByLabel(endNodeLabel);
 
@@ -125,7 +154,7 @@ class GraphVisualizer{
 
         const previous = {};
 
-        while (!queue.isEmpty()) {
+        while (!queue.isEmpty()){
             const currentNodeId = queue.dequeue().element;
 
             if (currentNodeId === endNodeId) {
@@ -136,14 +165,13 @@ class GraphVisualizer{
                     current = previous[current];
                 }
                 path.unshift(startNodeId);
-                // TODO: it returns the path with node id, take into consideration to convert them into their respective node labe
                 return [this.convertPathToLabels(path), distances[endNodeId]];
             }
 
             visited.add(currentNodeId);
 
             const neighbors = this.Network.getConnectedNodes(currentNodeId);
-            neighbors.forEach(neighborId => {
+            neighbors.forEach(neighborId =>{
                 if (!visited.has(neighborId)) {
                     const edge = this.Edges.get({
                         filter: item => (item.from === currentNodeId && item.to === neighborId) ||
@@ -163,7 +191,7 @@ class GraphVisualizer{
         return console.log("Path not found.");
     }
 
-    convertPathToLabels(path) {
+    convertPathToLabels(path){
         const labels = [];
         path.forEach(nodeId => {
             const node = this.Nodes.get(nodeId);
@@ -174,64 +202,56 @@ class GraphVisualizer{
         return labels.join("->");
     }
 
-    findEulerianPath() {
-        const visitedEdges = new Set();
-        const eulerianPath = [];
+    fleurysAlgorithm(){
+        // Start at an vertex
+        const node = this.getRandomNode();
+        const copiedGraph = this.#cloneGraph();
 
-        // Find a random starting node
-        let currentNodeId = this.Nodes.getIds()[Math.floor(Math.random() * this.Nodes.length)];
+        function dfs(node, path){
+            const neighbors = copiedGraph.getNeighbors(node);
 
-        while (currentNodeId) {
-            // Get all the neighbors of the current node
-            const neighbors = this.Network.getConnectedNodes(currentNodeId);
-
-            // Find an unvisited edge from the current node
-            let nextEdge;
-            for (const neighborId of neighbors) {
-                const edgeId = this.findEdgeId(currentNodeId, neighborId);
-                if (edgeId && !visitedEdges.has(edgeId)) {
-                    nextEdge = { from: currentNodeId, to: neighborId, id: edgeId };
-                    break;
-                }
-            }
-
-            if (nextEdge) {
-                // Mark the edge as visited
-                visitedEdges.add(nextEdge.id);
-                eulerianPath.push(nextEdge);
-
-                // Move to the next node
-                currentNodeId = nextEdge.to;
-            } else {
-                // No unvisited edges from the current node, backtrack
-                break;
+            for(const neighbor in neighbors){
+                if(isBridge(node, neighbor)){}
             }
         }
 
-        // Check if all edges have been visited
-        const allEdgesVisited = this.Edges.getIds().every(edgeId => visitedEdges.has(edgeId));
-
-        // If all edges have been visited, return the Eulerian path
-        // Otherwise, the graph does not have an Eulerian path
-        return allEdgesVisited ? eulerianPath : null;
-    }
-}
-
-class PriorityQueue {
-    constructor() {
-        this.elements = [];
     }
 
-    enqueue(element, priority) {
-        this.elements.push({ element: element, priority: priority });
-        this.elements.sort((a, b) => a.priority - b.priority);
+    isBridge(fromNode, toNode){
+        const tempGraph = this.#cloneGraph();
+        tempGraph.removeEdge(fromNode, toNode);
+        // tempGraph.Network.destroy();
+        return !tempGraph.isConnected();
     }
 
-    dequeue() {
-        return this.elements.shift();
+    isConnected() {
+        const visited = new Set();
+        const queue = [this.Nodes.getIds()[0]]; // Start with the first node
+
+        while (queue.length > 0) {
+            const currentNode = queue.shift();
+            visited.add(currentNode);
+
+            const neighbors = this.getNeighbors(currentNode);
+            neighbors.forEach(neighbor => {
+                if (!visited.has(neighbor)) {
+                    queue.push(neighbor);
+                }
+            });
+        }
+
+        // Check if all nodes were visited
+        return visited.size === this.Nodes.length;
     }
 
-    isEmpty() {
-        return this.elements.length === 0;
+    hasEulerianPath(){
+        let numberOfNodesWithOddDegree = 0;
+
+        this.Nodes.forEach(node => {
+            const nodeDegree = this.getNodeDegree(node);
+            if(nodeDegree%2 !=  0){ numberOfNodesWithOddDegree+=1; }
+        })
+
+        return numberOfNodesWithOddDegree == 0 || numberOfNodesWithOddDegree == 2;
     }
 }
