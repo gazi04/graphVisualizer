@@ -203,32 +203,42 @@ class GraphVisualizer{
     }
 
     fleurysAlgorithm(){
+        if(!this.hasEulerianPath())
+            return;
+
         // Start at an vertex
         const node = this.getRandomNode();
         const copiedGraph = this.#cloneGraph();
+        const eulerianPath = [];
 
         function dfs(node, path){
             const neighbors = copiedGraph.getNeighbors(node);
 
             for(const neighbor in neighbors){
-                if(isBridge(node, neighbor)){}
+                if(!isBridge(node, neighbor)){
+                    path.push({from: node, to: neighbor});
+
+                    copiedGraph.removeEdge(node, neighbor);
+                    dfs(neighbor, path);
+                }
             }
         }
 
+        dfs(node, eulerianPath);
+        return eulerianPath;
     }
 
     isBridge(fromNode, toNode){
         const tempGraph = this.#cloneGraph();
         tempGraph.removeEdge(fromNode, toNode);
-        // tempGraph.Network.destroy();
         return !tempGraph.isConnected();
     }
 
-    isConnected() {
+    isConnected(){
         const visited = new Set();
-        const queue = [this.Nodes.getIds()[0]]; // Start with the first node
+        const queue = [this.Nodes.getIds()[0]]; 
 
-        while (queue.length > 0) {
+        while (queue.length > 0){
             const currentNode = queue.shift();
             visited.add(currentNode);
 
@@ -240,10 +250,10 @@ class GraphVisualizer{
             });
         }
 
-        // Check if all nodes were visited
         return visited.size === this.Nodes.length;
     }
 
+    // ! something is wrong with this function
     hasEulerianPath(){
         let numberOfNodesWithOddDegree = 0;
 
