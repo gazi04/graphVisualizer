@@ -258,7 +258,7 @@ class GraphVisualizer{
         let numberOfNodesWithOddDegree = 0;
 
         this.Nodes.forEach(node => {
-            const nodeDegree = this.getNodeDegree(node);
+            const nodeDegree = this.getNodeDegree(node.id);
             if(nodeDegree%2 !=  0){ numberOfNodesWithOddDegree+=1; }
         })
 
