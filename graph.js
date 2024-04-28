@@ -302,3 +302,53 @@ function incidenceMatrix(graph){
 
     return matrix;
 }
+
+function findEulerianPath(graph) {
+    const clonedGraph = cloneGraph(graph);
+    const eulerianPath = [];
+    const startNode = getRandomNode(clonedGraph);
+    dfs(startNode);
+
+    for (const edge of clonedGraph.edges()) {
+        if (!clonedGraph.getEdgeAttribute(edge, 'visited')) {
+            return null;
+        }
+    }
+
+    return eulerianPath;
+
+    function dfs(node) {
+        const outNeighbors = clonedGraph.outNeighbors(node);
+        for (const neighbor of outNeighbors) {
+            const edge = clonedGraph.getEdgeAttributes(node, neighbor);
+
+            clonedGraph.setEdgeAttribute(node, neighbor, 'visited', true);
+            clonedGraph.dropEdge(node, neighbor);
+
+            dfs(neighbor);
+        }
+
+        eulerianPath.unshift(node);
+    }
+
+    function getRandomNode(graph) {
+        const nodes = graph.nodes();
+        const randomIndex = Math.floor(Math.random() * nodes.length);
+        return nodes[randomIndex];
+    }
+}
+
+function cloneGraph(originalGraph) {
+    const clonedGraph = new graphology.Graph();
+
+    originalGraph.forEachNode(node => {
+        clonedGraph.addNode(node);
+    });
+
+    originalGraph.forEachEdge(
+    (edge, attributes, source, target, sourceAttributes, targetAttributes) => {
+        clonedGraph.addEdge(source, target, { ...attributes });
+    });
+
+    return clonedGraph;
+}

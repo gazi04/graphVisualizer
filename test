@@ -1,0 +1,73 @@
+class GraphVisualizer {
+    constructor(container) {
+        // Constructor code
+    }
+
+    // Other methods omitted for brevity
+
+    fleurysAlgorithm() {
+        // Check if the graph has an Eulerian path
+        if (!this.hasEulerianPath()) {
+            console.log("The graph does not have an Eulerian path.");
+            return null;
+        }
+
+        const eulerianPath = [];
+        const startNode = this.getRandomNode();
+
+        this.dfs(startNode, eulerianPath);
+
+        return eulerianPath;
+    }
+
+    hasEulerianPath() {
+        let oddDegreeNodesCount = 0;
+
+        this.Nodes.forEach(nodeId => {
+            const degree = this.getDegree(nodeId);
+            if (degree % 2 !== 0) {
+                oddDegreeNodesCount++;
+            }
+        });
+
+        return oddDegreeNodesCount === 0 || oddDegreeNodesCount === 2;
+    }
+
+    dfs(nodeId, path) {
+        const neighbors = this.Network.getConnectedNodes(nodeId);
+
+        for (const neighborId of neighbors) {
+            if (this.isValidNextEdge(nodeId, neighborId)) {
+                path.push({ from: nodeId, to: neighborId });
+
+                // Remove the edge from the graph
+                this.removeEdge(nodeId, neighborId);
+
+                this.dfs(neighborId, path);
+            }
+        }
+    }
+
+    isValidNextEdge(fromNodeId, toNodeId) {
+        // Check if removing the edge won't disconnect the graph
+        const tempGraph = this.clone();
+        tempGraph.removeEdge(fromNodeId, toNodeId);
+        return tempGraph.isConnected();
+    }
+
+    clone() {
+        // Clone the graph
+    }
+
+    getRandomNode() {
+        // Get a random node from the graph
+    }
+
+    getDegree(nodeId) {
+        // Get the degree of a node in the graph
+    }
+
+    isConnected() {
+        // Check if the graph is connected
+    }
+}
