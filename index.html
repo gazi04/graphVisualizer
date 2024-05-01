@@ -35,95 +35,130 @@
     <!-- To use a Graph object -->
     <script src="graphology/graphology.min.js"></script>
     <script>
+// function findEulerianPath(graph) {
+//     if (!isGraphConnected(graph)) {
+//         throw new Error('Graph is not connected. Eulerian path does not exist.');
+//     }
 
-// Function to find Eulerian path
-function findEulerianPath(graph) {
-    // Check if the graph is connected
-    if (!isGraphConnected(graph)) {
-        throw new Error('Graph is not connected. Eulerian path does not exist.');
-    }
+//     const copyGraph = graphology.Graph.from(graph);
 
-    // Create a copy of the graph to avoid modifying the original graph
-    const copyGraph = graphology.Graph.from(graph);
+//     let path = [];
 
-    // Initialize empty path
-    let path = [];
+//     let currentNode = findStartingNode(copyGraph);
 
-    // Find a starting node
-    let currentNode = findStartingNode(copyGraph);
+//     while (copyGraph.size > 0) {
+//         const neighbor = findNextNeighbor(currentNode, copyGraph);
 
-    // Loop until there are edges left in the graph
-    while (copyGraph.size > 0) {
-        // Find a neighbor of the current node
-        const neighbor = findNextNeighbor(currentNode, copyGraph);
+//         if (neighbor === null) break;
 
-        // If no neighbor found, break the loop
-        if (neighbor === null) break;
+//         // let edgeToBeDeleted;
+//         // graph.forEachEdge(
+//         // (edge, attributes, source, target, sourceAttributes, targetAttributes) => {
+//         //     if((source == currentNode && target == neighbor) || (source == neighbor && target == currentNode))
+//         //        edgeToBeDeleted = edge; 
+//         // });
 
-        // Remove the edge between current node and neighbor
-        copyGraph.dropEdge(currentNode, neighbor);
+//         copyGraph.dropEdge(currentNode, neighbor);
 
-        // Add neighbor to path
-        path.push(currentNode);
+//         path.push(currentNode);
 
-        // Move to the neighbor node
-        currentNode = neighbor;
-    }
+//         currentNode = neighbor;
+//     }
 
-    // Add the last node to the path
-    path.push(currentNode);
+//     path.push(currentNode);
 
-    return path;
-}
+//     return path;
+// }
 
-// Function to check if the graph is connected
-function isGraphConnected(graph) {
-    // Pick an arbitrary node as the starting node
-    const startingNode = graph.nodes()[0];
+// function isGraphConnected(graph) {
+//     const startingNode = graph.nodes()[0];
 
-    // Perform depth-first search (DFS) to check if all nodes are reachable
-    const visitedNodes = new Set();
-    dfs(graph, startingNode, visitedNodes);
+//     const visitedNodes = new Set();
+//     dfs(graph, startingNode, visitedNodes);
 
-    // If the number of visited nodes is equal to the total number of nodes, the graph is connected
-    return visitedNodes.size === graph.order;
-}
+//     return visitedNodes.size === graph.order;
+// }
 
-// Depth-first search (DFS) algorithm
-function dfs(graph, node, visitedNodes) {
-    visitedNodes.add(node);
-    for (const neighbor of graph.neighbors(node)) {
-        if (!visitedNodes.has(neighbor)) {
-            dfs(graph, neighbor, visitedNodes);
-        }
-    }
-}
+// function dfs(graph, node, visitedNodes) {
+//     visitedNodes.add(node);
+//     for (const neighbor of graph.neighbors(node)) {
+//         if (!visitedNodes.has(neighbor)) {
+//             dfs(graph, neighbor, visitedNodes);
+//         }
+//     }
+// }
 
-// Function to find a starting node for Eulerian path
-function findStartingNode(graph) {
-    for (const node of graph.nodes()) {
-        if (graph.degree(node) % 2 === 1) {
-            return node;
-        }
-    }
-    // If all nodes have even degree, return any node
-    return graph.nodes()[0];
-}
+// function findStartingNode(graph) {
+//     for (const node of graph.nodes()) {
+//         if (graph.degree(node) % 2 === 1) {
+//             return node;
+//         }
+//     }
+//     return graph.nodes()[0];
+// }
 
-// Function to find the next neighbor for Eulerian path
-function findNextNeighbor(node, graph) {
-    // Get all neighbors of the current node
-    const neighbors = graph.neighbors(node);
+// function findNextNeighbor(node, graph) {
+//     const neighbors = graph.neighbors(node);
     
-    // Iterate through neighbors
-    for (const neighbor of neighbors) {
-        // Check if the edge between current node and neighbor exists
-        if (graph.hasEdge(node, neighbor)) {
-            // Return neighbor if the edge exists
-            return neighbor;
+//     for (const neighbor of neighbors) {
+//         if (graph.hasEdge(node, neighbor)) {
+//             return neighbor;
+//         }
+//     }
+//     return null;
+// }
+
+// Function to check if the graph has an Eulerian path
+function hasEulerianPath(graph) {
+    // Count nodes with odd degrees
+    let oddDegreeCount = 0;
+    graph.forEachNode(node => {
+        if (graph.degree(node) % 2 !== 0) {
+            oddDegreeCount++;
+        }
+    });
+    // Eulerian path exists if there are exactly 0 or 2 nodes with odd degree
+    return oddDegreeCount === 0 || oddDegreeCount === 2;
+}
+
+function findEulerianPath(graph) {
+    if (!hasEulerianPath(graph)) {
+        throw new Error('Graph does not have an Eulerian path.');
+    }
+
+    // Initialize variables
+    const edges = [];
+    const PATH = [];
+    const startNode = graph.nodes()[0];
+    let currentNode = startNode;
+
+    // Store all edges as arrays of objects
+    graph.forEachEdge((edge, attr, source, target) => {
+        edges.push({ startNode: source, endNode: target });
+    });
+
+    // Find Eulerian path
+    while (edges.length > 0) {
+        PATH.push(currentNode);
+        const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
+        if (nextEdgeIndex !== -1) {
+            const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
+            currentNode = nextEdge.endNode;
+        } else {
+            // If no next edge is found, backtrack to find a node with remaining edges
+            for (let i = PATH.length - 1; i >= 0; i--) {
+                const node = PATH[i];
+                const remainingEdges = edges.filter(edge => edge.startNode === node);
+                if (remainingEdges.length > 0) {
+                    currentNode = node;
+                    break;
+                }
+            }
         }
     }
-    return null;
+
+    PATH.push(currentNode);
+    return PATH;
 }
 
 // Example usage
