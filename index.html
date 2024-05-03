@@ -126,18 +126,15 @@ function findEulerianPath(graph) {
         throw new Error('Graph does not have an Eulerian path.');
     }
 
-    // Initialize variables
     const edges = [];
     const PATH = [];
     const startNode = graph.nodes()[0];
     let currentNode = startNode;
 
-    // Store all edges as arrays of objects
     graph.forEachEdge((edge, attr, source, target) => {
         edges.push({ startNode: source, endNode: target });
     });
 
-    // Find Eulerian path
     while (edges.length > 0) {
         PATH.push(currentNode);
         const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
@@ -145,15 +142,8 @@ function findEulerianPath(graph) {
             const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
             currentNode = nextEdge.endNode;
         } else {
-            // If no next edge is found, backtrack to find a node with remaining edges
-            for (let i = PATH.length - 1; i >= 0; i--) {
-                const node = PATH[i];
-                const remainingEdges = edges.filter(edge => edge.startNode === node);
-                if (remainingEdges.length > 0) {
-                    currentNode = node;
-                    break;
-                }
-            }
+            const i = edges.findIndex(edge => edge.endNode === currentNode);
+            currentNode = edges.splice(i, 1)[0].startNode;
         }
     }
 
