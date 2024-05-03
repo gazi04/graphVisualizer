@@ -143,7 +143,23 @@ function findEulerianPath(graph) {
             currentNode = nextEdge.endNode;
         } else {
             const i = edges.findIndex(edge => edge.endNode === currentNode);
-            currentNode = edges.splice(i, 1)[0].startNode;
+
+            if(i !== -1){
+                currentNode = edges.splice(i, 1)[0].startNode;
+            }
+            else{
+                // If no next edge is found, backtrack to find a node with remaining edges
+                for (let i = PATH.length - 1; i >= 0; i--) {
+                    const node = PATH[i];
+                    const remainingEdges = edges.filter(edge => edge.startNode === node);
+                    if (remainingEdges.length > 0) {
+                        currentNode = node;
+                        break;
+                    }
+                }
+            }
+
+
         }
     }
 
