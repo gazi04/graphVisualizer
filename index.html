@@ -109,7 +109,7 @@
 // }
 
 // Function to check if the graph has an Eulerian path
-function hasEulerianPath(graph) {
+function isGraphEulerian(graph) {
     // Count nodes with odd degrees
     let oddDegreeCount = 0;
     graph.forEachNode(node => {
@@ -117,12 +117,11 @@ function hasEulerianPath(graph) {
             oddDegreeCount++;
         }
     });
-    // Eulerian path exists if there are exactly 0 or 2 nodes with odd degree
-    return oddDegreeCount === 0 || oddDegreeCount === 2;
+    return oddDegreeCount === 0;
 }
 
-function findEulerianPath(graph) {
-    if (!hasEulerianPath(graph)) {
+function findEulerianCycle(graph) {
+    if (!isGraphEulerian(graph)) {
         throw new Error('Graph does not have an Eulerian path.');
     }
 
@@ -151,7 +150,7 @@ function findEulerianPath(graph) {
                 // If no next edge is found, backtrack to find a node with remaining edges
                 for (let i = PATH.length - 1; i >= 0; i--) {
                     const node = PATH[i];
-                    const remainingEdges = edges.filter(edge => edge.startNode === node);
+                    const remainingEdges = edges.filter(edge => edge.startNode === node || edge.endNode === node);
                     if (remainingEdges.length > 0) {
                         currentNode = node;
                         break;
@@ -175,18 +174,21 @@ graph.addNode('3');
 graph.addNode('4');
 graph.addNode('5');
 graph.addNode("6");
+// graph.addNode("7");
 graph.addEdge('1', '2');
-graph.addEdge('1', '3');
-graph.addEdge('2', '6');
-graph.addEdge('2', '4');
+graph.addEdge('1', '6');
 graph.addEdge('2', '3');
-graph.addEdge('3', '4');
+graph.addEdge('6', '3');
 graph.addEdge('3', '5');
-graph.addEdge('4', '6');
+graph.addEdge('3', '4');
 graph.addEdge('4', '5');
-graph.addEdge('5', '6');
+// graph.addEdge('4', '6');
+// graph.addEdge('4', '5');
+// graph.addEdge('5', '6');
+// graph.addEdge('5', '7');
+// graph.addEdge('6', '7');
 
-const eulerianPath = findEulerianPath(graph);
+const eulerianPath = findEulerianCycle(graph);
 console.log('Eulerian Path:', eulerianPath.join(' -> '));
 
 
