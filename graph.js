@@ -25,7 +25,7 @@ function executeCommand(){
     var command = parts[0];
     var args = parts.slice(1);
 
-    switch (command) {
+    switch (command){
         case 'shto':
             if(args != null){ addNode(args, getCurrentGraph()); }
             else{ addToOutput("Ju duhet te jepni nyjen."); }
@@ -61,9 +61,15 @@ function executeCommand(){
             addToOutput("Me koston " + pathAndCost[1]); 
             break;
         case "shtegu-eulerit":
-
             break;
         case "qarku-eulerit":
+            if(currentGraphType != "simple" || currentGraphType != "pseudo"){
+                addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar dhe tek grafi me peshe.");
+                return;
+            }
+            const circuit = findEulerianCircuit(graph)
+            let text = "Qarku Eulerit: " + circuit.join(" -> ");
+            addToOutput(text);
             break;
         case "matrica-fqinjesis":
             addToOutput(adjacencyMatrix(getCurrentGraph()));
@@ -75,7 +81,6 @@ function executeCommand(){
             addToOutput('Unknown command:' + command);
     }
 
-    // Clear the input field after executing the command
     input.value = '';
 }
 
@@ -221,9 +226,9 @@ function printNodeNeighbours(node, graph){
     const neighbors = graph.neighbors(nodeId);
     let text = `Fqinjet e nyjes ${nodeData[nodeId]} jane: `;
 
-    for(let i = 0; i < neighbors.length; i++) {
+    for(let i = 0; i < neighbors.length; i++){
         text += nodeData[neighbors[i]];
-        if (i < neighbors.length - 1) {
+        if (i < neighbors.length - 1){
             text += ', '; 
         }
     }
@@ -237,14 +242,14 @@ function adjacencyMatrix(graph){
 
     for(let i = -1; i < nodes.length; i++){
         matrix[i + 1] = [];
-        for (let j = -1; j < nodes.length; j++) {
-            if (i === -1 && j === -1) {
+        for (let j = -1; j < nodes.length; j++){
+            if (i === -1 && j === -1){
                 matrix[i + 1][j + 1] = '';
-            } else if (i === -1) {
+            } else if (i === -1){
                 matrix[i + 1][j + 1] = nodeData[nodes[j]];
-            } else if (j === -1) {
+            } else if (j === -1){
                 matrix[i + 1][j + 1] = nodeData[nodes[i]];
-            } else {
+            } else{
                 matrix[i + 1][j + 1] = 0;
             }
         }
@@ -254,7 +259,7 @@ function adjacencyMatrix(graph){
         const nodeId = nodes[i];
         const neighbors = graph.neighbors(nodeId);
 
-        for(let j = 0; j < neighbors.length; j++) {
+        for(let j = 0; j < neighbors.length; j++){
             const neighborId = neighbors[j];
             const neighborIndex = nodes.indexOf(neighborId);
             matrix[i + 1][neighborIndex + 1] = 1;
@@ -272,7 +277,7 @@ function incidenceMatrix(graph){
 
     for(let i = 0; i < nodes.length; i++){
         matrix[i] = [nodeData[nodes[i]]];
-        for (let j = 1; j < edges.length+1; j++) { matrix[i][j] = 0; }
+        for (let j = 1; j < edges.length+1; j++){ matrix[i][j] = 0; }
     }
 
     if(currentGraphType == "directed"){
@@ -303,42 +308,42 @@ function incidenceMatrix(graph){
     return matrix;
 }
 
-function findEulerianPath(graph) {
-    const clonedGraph = cloneGraph(graph);
-    const eulerianPath = [];
-    const startNode = getRandomNode(clonedGraph);
-    dfs(startNode);
+// function findEulerianPath(graph){
+//     const clonedGraph = cloneGraph(graph);
+//     const eulerianPath = [];
+//     const startNode = getRandomNode(clonedGraph);
+//     dfs(startNode);
 
-    for (const edge of clonedGraph.edges()) {
-        if (!clonedGraph.getEdgeAttribute(edge, 'visited')) {
-            return null;
-        }
-    }
+//     for(const edge of clonedGraph.edges()){
+//         if (!clonedGraph.getEdgeAttribute(edge, 'visited')) {
+//             return null;
+//         }
+//     }
 
-    return eulerianPath;
+//     return eulerianPath;
 
-    function dfs(node) {
-        const outNeighbors = clonedGraph.outNeighbors(node);
-        for (const neighbor of outNeighbors) {
-            const edge = clonedGraph.getEdgeAttributes(node, neighbor);
+//     function dfs(node){
+//         const outNeighbors = clonedGraph.outNeighbors(node);
+//         for(const neighbor of outNeighbors){
+//             const edge = clonedGraph.getEdgeAttributes(node, neighbor);
 
-            clonedGraph.setEdgeAttribute(node, neighbor, 'visited', true);
-            clonedGraph.dropEdge(node, neighbor);
+//             clonedGraph.setEdgeAttribute(node, neighbor, 'visited', true);
+//             clonedGraph.dropEdge(node, neighbor);
 
-            dfs(neighbor);
-        }
+//             dfs(neighbor);
+//         }
 
-        eulerianPath.unshift(node);
-    }
+//         eulerianPath.unshift(node);
+//     }
 
-    function getRandomNode(graph) {
-        const nodes = graph.nodes();
-        const randomIndex = Math.floor(Math.random() * nodes.length);
-        return nodes[randomIndex];
-    }
-}
+//     function getRandomNode(graph){
+//         const nodes = graph.nodes();
+//         const randomIndex = Math.floor(Math.random() * nodes.length);
+//         return nodes[randomIndex];
+//     }
+// }
 
-function cloneGraph(originalGraph) {
+function cloneGraph(originalGraph){
     const clonedGraph = new graphology.Graph();
 
     originalGraph.forEachNode(node => {
@@ -351,4 +356,58 @@ function cloneGraph(originalGraph) {
     });
 
     return clonedGraph;
+}
+
+function isGraphEulerian(graph){
+    let oddDegreeCount = 0;
+    graph.forEachNode(node => {
+        if (graph.degree(node) % 2 !== 0){
+            oddDegreeCount++;
+        }
+    });
+    return oddDegreeCount === 0;
+}
+
+function findEulerianCircuit(graph){
+    if (!isGraphEulerian(graph)){
+        addToOutput("Grafi nuk eshte graf eulerian, sepse nyjet e atij grafi duhen te shkallen qift.");
+    }
+
+    const edges = [];
+    const PATH = [];
+    const startNode = graph.nodes()[0];
+    let currentNode = startNode;
+
+    graph.forEachEdge((edge, attr, source, target) => {
+        edges.push({ startNode: source, endNode: target });
+    });
+
+    while (edges.length > 0){
+        PATH.push(currentNode);
+        const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
+        if (nextEdgeIndex !== -1){
+            const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
+            currentNode = nextEdge.endNode;
+        } else{
+            const i = edges.findIndex(edge => edge.endNode === currentNode);
+
+            if(i !== -1){
+                currentNode = edges.splice(i, 1)[0].startNode;
+            }
+            else{
+                // If no next edge is found, backtrack to find a node with remaining edges
+                for (let i = PATH.length - 1; i >= 0; i--){
+                    const node = PATH[i];
+                    const remainingEdges = edges.filter(edge => edge.startNode === node || edge.endNode === node);
+                    if (remainingEdges.length > 0){
+                        currentNode = node;
+                        break;
+                    }
+                }
+            }
+        }
+    }
+
+    PATH.push(currentNode);
+    return PATH;
 }

@@ -108,200 +108,195 @@
 //     return null;
 // }
 
-// Function to check if the graph has an Eulerian path
-function isGraphEulerian(graph) {
-    // Count nodes with odd degrees
-    let oddDegreeCount = 0;
-    graph.forEachNode(node => {
-        if (graph.degree(node) % 2 !== 0) {
-            oddDegreeCount++;
-        }
-    });
-    return oddDegreeCount === 0;
-}
+// function isGraphEulerian(graph) {
+//     let oddDegreeCount = 0;
+//     graph.forEachNode(node => {
+//         if (graph.degree(node) % 2 !== 0) {
+//             oddDegreeCount++;
+//         }
+//     });
+//     return oddDegreeCount === 0;
+// }
 
-function findEulerianCycle(graph) {
-    if (!isGraphEulerian(graph)) {
-        throw new Error('Graph does not have an Eulerian path.');
-    }
+// function findEulerianPath(graph) {
+//     if (!isGraphEulerian(graph)) {
+//         throw new Error('Graph does not have an Eulerian path.');
+//     }
 
-    const edges = [];
-    const PATH = [];
-    const startNode = graph.nodes()[0];
-    let currentNode = startNode;
+//     const edges = [];
+//     const PATH = [];
+//     const startNode = graph.nodes()[5];
+//     let currentNode = startNode;
 
-    graph.forEachEdge((edge, attr, source, target) => {
-        edges.push({ startNode: source, endNode: target });
-    });
+//     graph.forEachEdge((edge, attr, source, target) => {
+//         edges.push({ startNode: source, endNode: target });
+//     });
 
-    while (edges.length > 0) {
-        PATH.push(currentNode);
-        const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
-        if (nextEdgeIndex !== -1) {
-            const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
-            currentNode = nextEdge.endNode;
-        } else {
-            const i = edges.findIndex(edge => edge.endNode === currentNode);
+//     while (edges.length > 0) {
+//         PATH.push(currentNode);
+//         const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
+//         if (nextEdgeIndex !== -1) {
+//             const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
+//             currentNode = nextEdge.endNode;
+//         } else {
+//             const i = edges.findIndex(edge => edge.endNode === currentNode);
 
-            if(i !== -1){
-                currentNode = edges.splice(i, 1)[0].startNode;
-            }
-            else{
-                // If no next edge is found, backtrack to find a node with remaining edges
-                for (let i = PATH.length - 1; i >= 0; i--) {
-                    const node = PATH[i];
-                    const remainingEdges = edges.filter(edge => edge.startNode === node || edge.endNode === node);
-                    if (remainingEdges.length > 0) {
-                        currentNode = node;
-                        break;
-                    }
-                }
-            }
+//             if(i !== -1){
+//                 currentNode = edges.splice(i, 1)[0].startNode;
+//             }
+//             else{
+//                 // If no next edge is found, backtrack to find a node with remaining edges
+//                 for (let i = PATH.length - 1; i >= 0; i--) {
+//                     const node = PATH[i];
+//                     const remainingEdges = edges.filter(edge => edge.startNode === node || edge.endNode === node);
+//                     if (remainingEdges.length > 0) {
+//                         currentNode = node;
+//                         break;
+//                     }
+//                 }
+//             }
+//         }
+//     }
 
+//     PATH.push(currentNode);
+//     return PATH;
+// }
 
-        }
-    }
-
-    PATH.push(currentNode);
-    return PATH;
-}
-
-// Example usage
-const graph = new graphology.Graph();
-graph.addNode('1');
-graph.addNode('2');
-graph.addNode('3');
-graph.addNode('4');
-graph.addNode('5');
-graph.addNode("6");
+// const graph = new graphology.Graph();
+// graph.addNode('1');
+// graph.addNode('2');
+// graph.addNode('3');
+// graph.addNode('4');
+// graph.addNode('5');
+// graph.addNode("6");
 // graph.addNode("7");
-graph.addEdge('1', '2');
-graph.addEdge('1', '6');
-graph.addEdge('2', '3');
-graph.addEdge('6', '3');
-graph.addEdge('3', '5');
-graph.addEdge('3', '4');
-graph.addEdge('4', '5');
+// graph.addEdge('1', '2');
+// graph.addEdge('1', '3');
+// graph.addEdge('2', '6');
+// graph.addEdge('2', '4');
+// graph.addEdge('2', '3');
+// graph.addEdge('3', '4');
+// graph.addEdge('3', '5');
 // graph.addEdge('4', '6');
 // graph.addEdge('4', '5');
 // graph.addEdge('5', '6');
 // graph.addEdge('5', '7');
 // graph.addEdge('6', '7');
 
-const eulerianPath = findEulerianCycle(graph);
-console.log('Eulerian Path:', eulerianPath.join(' -> '));
+// const eulerianPath = findEulerianPath(graph);
+// console.log('Eulerian Path:', eulerianPath.join(' -> '));
 
 
     </script>
     <script>
-        // const visualizer = new GraphVisualizer('mynetwork');
-        // // By default the graph is a simple graph
-        // const graph = new graphology.Graph({allowSelfLoops: false});
-        // const pseudoGraph = new graphology.Graph({multi: true, allowSelfLoops: true});
-        // const diagraph = new graphology.DirectedGraph({allowSelfLoops: false});
-        // const weightedGraph = new graphology.Graph({type: "undirected", weighted: true, allowSelfLoops: false});
-        // let currentGraphType = "simple"
+        const visualizer = new GraphVisualizer('mynetwork');
+        // By default the graph is a simple graph
+        const graph = new graphology.Graph({allowSelfLoops: false});
+        const pseudoGraph = new graphology.Graph({multi: true, allowSelfLoops: true});
+        const diagraph = new graphology.DirectedGraph({allowSelfLoops: false});
+        const weightedGraph = new graphology.Graph({type: "undirected", weighted: true, allowSelfLoops: false});
+        let currentGraphType = "simple"
         
-        // fetch('nodes.json')
-        // .then(response => response.json())
-        // .then(nodeData => {
-        //     nodeData.forEach(node => {
-        //         // A node in a simple graph has two main properties the id (for unique values, for distinciton) 
-        //         // and the label as a node attribute (for the end user, the name of the node that's displayed)
-        //         graph.addNode(node.id);
-        //         graph.setAttribute(node.id, node.label);
+        fetch('nodes.json')
+        .then(response => response.json())
+        .then(nodeData => {
+            nodeData.forEach(node => {
+                // A node in a simple graph has two main properties the id (for unique values, for distinciton) 
+                // and the label as a node attribute (for the end user, the name of the node that's displayed)
+                graph.addNode(node.id);
+                graph.setAttribute(node.id, node.label);
 
-        //         pseudoGraph.addNode(node.id);
-        //         pseudoGraph.setAttribute(node.id, node.label);
+                pseudoGraph.addNode(node.id);
+                pseudoGraph.setAttribute(node.id, node.label);
 
-        //         diagraph.addNode(node.id);
-        //         diagraph.setAttribute(node.id, node.label);
+                diagraph.addNode(node.id);
+                diagraph.setAttribute(node.id, node.label);
 
-        //         weightedGraph.addNode(node.id);
-        //         weightedGraph.setAttribute(node.id, node.label);
+                weightedGraph.addNode(node.id);
+                weightedGraph.setAttribute(node.id, node.label);
 
-        //         visualizer.addNode(node.id, node.label);
-        //     });
+                visualizer.addNode(node.id, node.label);
+            });
 
-        //     fetch("edges.json")
-        //     .then(response => response.json())
-        //     .then(edgeData => {
-        //         edgeData.forEach(edge => {
-        //             if(!(edge.from === edge.to)){
-        //                 graph.addEdge(edge.from, edge.to);
-        //                 // By default the graph doesn't allow self loops, that's the reason why the line below
-        //                 // is inside the body of this if statement 
-        //                 visualizer.addEdge(edge.from.toString(), edge.to.toString());
-        //             }
-        //             pseudoGraph.addEdge(edge.from, edge.to);
-        //             diagraph.addDirectedEdge(edge.from, edge.to);
-        //             weightedGraph.addEdge(edge.from, edge.to, {value: edge.weight});
+            fetch("edges.json")
+            .then(response => response.json())
+            .then(edgeData => {
+                edgeData.forEach(edge => {
+                    if(!(edge.from === edge.to)){
+                        graph.addEdge(edge.from, edge.to);
+                        // By default the graph doesn't allow self loops, that's the reason why the line below
+                        // is inside the body of this if statement 
+                        visualizer.addEdge(edge.from.toString(), edge.to.toString());
+                    }
+                    pseudoGraph.addEdge(edge.from, edge.to);
+                    diagraph.addDirectedEdge(edge.from, edge.to);
+                    weightedGraph.addEdge(edge.from, edge.to, {value: edge.weight});
 
-        //             visualizer.createNetwork();
-        //         });
-        //     })
-        //     .catch(error => console.error("Error fetching edges:", error));
-        // })
-        // .catch(error => console.error('Error fetching nodes:', error));
+                    visualizer.createNetwork();
+                });
+            })
+            .catch(error => console.error("Error fetching edges:", error));
+        })
+        .catch(error => console.error('Error fetching nodes:', error));
 
-        // function setGraphType(type){
-        //     if(type == "simple"){
-        //         currentGraphType = "simple";
-        //         visualizer.IsDirected = false;
-        //         visualizer.IsWeighted = false;
-        //         visualizer.HasLoops = false;
+        function setGraphType(type){
+            if(type == "simple"){
+                currentGraphType = "simple";
+                visualizer.IsDirected = false;
+                visualizer.IsWeighted = false;
+                visualizer.HasLoops = false;
 
-        //         visualizer.clearNodes();
-        //         graph.forEachNode((node) => {visualizer.addNode(node, graph.getAttribute(node));});
+                visualizer.clearNodes();
+                graph.forEachNode((node) => {visualizer.addNode(node, graph.getAttribute(node));});
 
-        //         visualizer.clearEdges();
-        //         graph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
-        //         visualizer.updateGraph();
-        //     }
-        //     else if(type == "pseudo"){
-        //         currentGraphType = "pseudo";
-        //         visualizer.IsDirected = false;
-        //         visualizer.IsWeighted = false;
-        //         visualizer.HasLoops = true;
+                visualizer.clearEdges();
+                graph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
+                visualizer.updateGraph();
+            }
+            else if(type == "pseudo"){
+                currentGraphType = "pseudo";
+                visualizer.IsDirected = false;
+                visualizer.IsWeighted = false;
+                visualizer.HasLoops = true;
 
-        //         visualizer.clearNodes();
-        //         pseudoGraph.forEachNode((node) => {visualizer.addNode(node, pseudoGraph.getAttribute(node));});
+                visualizer.clearNodes();
+                pseudoGraph.forEachNode((node) => {visualizer.addNode(node, pseudoGraph.getAttribute(node));});
 
-        //         visualizer.clearEdges();
-        //         pseudoGraph.forEachEdge((edge, attr, source, target) => {visualizer.addEdge(source, target);});
-        //         visualizer.updateGraph();
-        //     }
-        //     else if(type == "directed"){
-        //         currentGraphType = "directed";
-        //         visualizer.IsDirected = true;
-        //         visualizer.IsWeighted = false;
-        //         visualizer.HasLoops = false;
+                visualizer.clearEdges();
+                pseudoGraph.forEachEdge((edge, attr, source, target) => {visualizer.addEdge(source, target);});
+                visualizer.updateGraph();
+            }
+            else if(type == "directed"){
+                currentGraphType = "directed";
+                visualizer.IsDirected = true;
+                visualizer.IsWeighted = false;
+                visualizer.HasLoops = false;
                
-        //         visualizer.clearNodes();
-        //         diagraph.forEachNode((node) => {visualizer.addNode(node, diagraph.getAttribute(node));}); 
+                visualizer.clearNodes();
+                diagraph.forEachNode((node) => {visualizer.addNode(node, diagraph.getAttribute(node));}); 
 
-        //         visualizer.clearEdges();
-        //         diagraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
-        //         visualizer.updateGraph();
-        //     }
-        //     else if(type == "weighted"){
-        //         currentGraphType = "weighted";
-        //         visualizer.IsDirected = false;
-        //         visualizer.IsWeighted = true;
-        //         visualizer.HasLoops = false;
+                visualizer.clearEdges();
+                diagraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
+                visualizer.updateGraph();
+            }
+            else if(type == "weighted"){
+                currentGraphType = "weighted";
+                visualizer.IsDirected = false;
+                visualizer.IsWeighted = true;
+                visualizer.HasLoops = false;
 
-        //         visualizer.clearNodes();
-        //         weightedGraph.forEachNode((node) => {visualizer.addNode(node, weightedGraph.getAttribute(node));});
+                visualizer.clearNodes();
+                weightedGraph.forEachNode((node) => {visualizer.addNode(node, weightedGraph.getAttribute(node));});
 
-        //         visualizer.clearEdges();
-        //         weightedGraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdgeWithWeight(source, target, attr.value);});
-        //         visualizer.updateGraph();
-        //     }
+                visualizer.clearEdges();
+                weightedGraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdgeWithWeight(source, target, attr.value);});
+                visualizer.updateGraph();
+            }
 
-        //     document.getElementById("graphTypeIndicator").innerHTML = `Current Graph Type: 
-        //     ${currentGraphType.charAt(0).toUpperCase()+currentGraphType.slice(1)} Graph`;
-        //     visualizer.Network.redraw();
-        // }
+            document.getElementById("graphTypeIndicator").innerHTML = `Current Graph Type: 
+            ${currentGraphType.charAt(0).toUpperCase()+currentGraphType.slice(1)} Graph`;
+            visualizer.Network.redraw();
+        }
     </script>
     <script src="graph.js"></script>
 </body>
