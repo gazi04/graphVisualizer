@@ -61,6 +61,13 @@ function executeCommand(){
             addToOutput("Me koston " + pathAndCost[1]); 
             break;
         case "shtegu-eulerit":
+            if(currentGraphType != "simple" || currentGraphType != "pseudo"){
+                addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar dhe tek grafi me peshe.");
+                return;
+            }
+            const path = findEulerianPath(graph)
+             
+            addToOutput(("Qarku Eulerit: " + path.join(" -> ")));
             break;
         case "qarku-eulerit":
             if(currentGraphType != "simple" || currentGraphType != "pseudo"){
@@ -370,7 +377,7 @@ function isGraphEulerian(graph){
 
 function findEulerianCircuit(graph){
     if (!isGraphEulerian(graph)){
-        addToOutput("Grafi nuk eshte graf eulerian, sepse nyjet e atij grafi duhen te shkallen qift.");
+        addToOutput("Grafi nuk eshte graf eulerian, sepse nyjet e atij grafi duhen te jene me shkalle qift.");
     }
 
     const edges = [];
@@ -410,4 +417,66 @@ function findEulerianCircuit(graph){
 
     PATH.push(currentNode);
     return PATH;
+}
+
+function findEulerianPathRecursive(graph, startNode, eulerianPath){
+    const neighbors = graph.neighbors(startNode);
+
+    while (neighbors.length > 0){
+        const nextNode = neighbors.shift();
+        const edge = graph.hasEdge(startNode, nextNode) ? [startNode, nextNode] : [nextNode, startNode];
+
+        graph.dropEdge(edge[0], edge[1]);
+        findEulerianPathRecursive(graph, nextNode, eulerianPath);
+    }
+
+    eulerianPath.push(startNode);
+}
+
+function hasEulerianPath(graph){
+    let oddDegreeCount = 0;
+    graph.forEachNode(node =>{
+        if (graph.degree(node) % 2 !== 0){
+            oddDegreeCount++;
+        }
+    });
+    return oddDegreeCount === 2;
+}
+
+function findEulerianPathRecursive(graph, startNode, eulerianPath){
+    const neighbors = graph.neighbors(startNode);
+
+    while (neighbors.length > 0){
+        const nextNode = neighbors.shift();
+        const edge = graph.hasEdge(startNode, nextNode) ? [startNode, nextNode] : [nextNode, startNode];
+
+        if (graph.hasEdge(edge[0], edge[1])){
+            graph.dropEdge(edge[0], edge[1]);
+
+            findEulerianPathRecursive(graph, nextNode, eulerianPath);
+        }
+    }
+
+    eulerianPath.push(startNode);
+}
+
+function findEulerianPath(graph){
+    if (!hasEulerianPath(graph)){
+        addToOutput('Grafi nuk ka shteg te eulerit.');
+    }
+
+    const oddDegreeNodes = [];
+    const eulerianPath = [];
+
+    graph.forEachNode(node => {
+        if (graph.degree(node) % 2 === 1){
+            oddDegreeNodes.push(node);
+        }
+    });
+
+    const startNode = oddDegreeNodes[0];
+
+    findEulerianPathRecursive(graph, startNode, eulerianPath);
+
+    return eulerianPath.reverse();
 }
