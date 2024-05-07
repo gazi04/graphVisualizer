@@ -61,7 +61,7 @@ function executeCommand(){
             addToOutput("Me koston " + pathAndCost[1]); 
             break;
         case "shtegu-eulerit":
-            if(currentGraphType != "simple" || currentGraphType != "pseudo"){
+            if(currentGraphType == "directed" || currentGraphType == "weighted"){
                 addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar dhe tek grafi me peshe.");
                 break;
             }
@@ -316,40 +316,10 @@ function incidenceMatrix(graph){
     return matrix;
 }
 
-// function findEulerianPath(graph){
-//     const clonedGraph = cloneGraph(graph);
-//     const eulerianPath = [];
-//     const startNode = getRandomNode(clonedGraph);
-//     dfs(startNode);
-
-//     for(const edge of clonedGraph.edges()){
-//         if (!clonedGraph.getEdgeAttribute(edge, 'visited')) {
-//             return null;
-//         }
-//     }
-
-//     return eulerianPath;
-
-//     function dfs(node){
-//         const outNeighbors = clonedGraph.outNeighbors(node);
-//         for(const neighbor of outNeighbors){
-//             const edge = clonedGraph.getEdgeAttributes(node, neighbor);
-
-//             clonedGraph.setEdgeAttribute(node, neighbor, 'visited', true);
-//             clonedGraph.dropEdge(node, neighbor);
-
-//             dfs(neighbor);
-//         }
-
-//         eulerianPath.unshift(node);
-//     }
-
-//     function getRandomNode(graph){
-//         const nodes = graph.nodes();
-//         const randomIndex = Math.floor(Math.random() * nodes.length);
-//         return nodes[randomIndex];
-//     }
-// }
+function convertNodeIdIntoNodeLabel(nodeId, graph){
+    const nodeData = graph._attributes;
+    return nodeData[nodeId];
+}
 
 function cloneGraph(originalGraph){
     const clonedGraph = new graphology.Graph();
@@ -382,7 +352,7 @@ function findEulerianCircuit(graph){
     }
 
     const edges = [];
-    const PATH = [];
+    const circle = [];
     const startNode = graph.nodes()[0];
     let currentNode = startNode;
 
@@ -391,7 +361,7 @@ function findEulerianCircuit(graph){
     });
 
     while (edges.length > 0){
-        PATH.push(currentNode);
+        circle.push(currentNode);
         const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
         if (nextEdgeIndex !== -1){
             const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
@@ -404,8 +374,8 @@ function findEulerianCircuit(graph){
             }
             else{
                 // If no next edge is found, backtrack to find a node with remaining edges
-                for (let i = PATH.length - 1; i >= 0; i--){
-                    const node = PATH[i];
+                for (let i = circle.length - 1; i >= 0; i--){
+                    const node = circle[i];
                     const remainingEdges = edges.filter(edge => edge.startNode === node || edge.endNode === node);
                     if (remainingEdges.length > 0){
                         currentNode = node;
@@ -416,22 +386,13 @@ function findEulerianCircuit(graph){
         }
     }
 
-    PATH.push(currentNode);
-    return PATH;
-}
+    circle.push(currentNode);
 
-function findEulerianPathRecursive(graph, startNode, eulerianPath){
-    const neighbors = graph.neighbors(startNode);
-
-    while (neighbors.length > 0){
-        const nextNode = neighbors.shift();
-        const edge = graph.hasEdge(startNode, nextNode) ? [startNode, nextNode] : [nextNode, startNode];
-
-        graph.dropEdge(edge[0], edge[1]);
-        findEulerianPathRecursive(graph, nextNode, eulerianPath);
+    for(let index = 0; index < circle.length; index++){
+        circle[index] = convertNodeIdIntoNodeLabel(circle[index], graph)
     }
 
-    eulerianPath.push(startNode);
+    return circle;
 }
 
 function hasEulerianPath(graph){
@@ -478,6 +439,11 @@ function findEulerianPath(graph){
     const startNode = oddDegreeNodes[0];
 
     findEulerianPathRecursive(graph, startNode, eulerianPath);
+    eulerianPath.reverse();
 
-    return eulerianPath.reverse();
+    for(let nodeIndex = 0; nodeIndex < eulerianPath.length; nodeIndex++){
+        eulerianPath[nodeIndex] = convertNodeIdIntoNodeLabel(eulerianPath[nodeIndex], graph);
+    }
+
+    return eulerianPath;
 }
