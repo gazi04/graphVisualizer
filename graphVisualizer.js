@@ -113,6 +113,22 @@ class GraphVisualizer{
         }
     }
 
+    removeNode(nodeId){
+        if (typeof nodeId === 'string'){
+            nodeId = parseInt(nodeId);
+        }
+
+        this.Nodes.remove(nodeId);
+
+        this.Edges.forEach(edge => {
+            if (edge.from === nodeId || edge.to === nodeId) {
+                this.Edges.remove(edge.id);
+            }
+        });
+
+        this.updateGraph();
+    }
+
     createNetwork(){
         var container = document.getElementById(this.Container);
         var data = {
