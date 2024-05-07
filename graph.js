@@ -63,16 +63,17 @@ function executeCommand(){
         case "shtegu-eulerit":
             if(currentGraphType != "simple" || currentGraphType != "pseudo"){
                 addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar dhe tek grafi me peshe.");
-                return;
+                break;
             }
             const path = findEulerianPath(graph)
              
             addToOutput(("Qarku Eulerit: " + path.join(" -> ")));
             break;
         case "qarku-eulerit":
-            if(currentGraphType != "simple" || currentGraphType != "pseudo"){
+            if(currentGraphType == "directed" || currentGraphType == "weighted"){
                 addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar dhe tek grafi me peshe.");
-                return;
+                addToOutput(currentGraphType);
+                break;
             }
             const circuit = findEulerianCircuit(graph)
             let text = "Qarku Eulerit: " + circuit.join(" -> ");
