@@ -30,6 +30,10 @@ function executeCommand(){
             if(args != null){ addNode(args, getCurrentGraph()); }
             else{ addToOutput("Ju duhet te jepni nyjen."); }
             break;
+        case "fshij":
+            if(args != null){ addToOutput("Ju duhet te jepni nyjen per ta fshir ate nga grafi."); }
+            else{ removeNode(args[0], getCurrentGraph()); }
+            break;
         case "shkalla":
             if(args[0] == null){ addToOutput("Ju duhet te jepni nyjen"); }
             else{ nodeDegree(args[0], getCurrentGraph()); }
@@ -90,6 +94,34 @@ function executeCommand(){
     }
 
     input.value = '';
+}
+
+function removeNode(node, graph){
+    if(!doesNodeExistsByLabel(node, graph)){
+        addToOutput("Nyja qe keni dhene nuk ekziston ne graf.");
+        return;
+    }
+
+    const nodeId = getNodeIdFromLabel(node, graph);
+    graph.dropNode(nodeId);
+    visualizer.removeNode(nodeId);
+}
+
+function doesNodeExistsByLabel(nodeLabel, graph){
+    const nodeData = graph._attributes;
+   
+    const node = Object.keys(nodeData).find(key => nodeData[key] === nodeLabel);
+    return node != null
+}
+
+function getNodeIdFromLabel(nodeLabel, graph){
+    const nodeData = graph._attributes;
+
+    for(key in nodeData){
+        if(nodeData[key] == nodeLabel)
+            return key;
+    }
+    return null;
 }
 
 function getCurrentGraph(){
