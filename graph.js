@@ -17,7 +17,6 @@ function addToOutput(text){
     outputDiv.scrollTop = output.scrollHeight;
 }
 
-
 function executeCommand(){
     var userInput = input.value.trim().toLowerCase();
 
@@ -70,8 +69,7 @@ function executeCommand(){
                 break;
             }
             const path = findEulerianPath(graph)
-             
-            addToOutput(("Qarku Eulerit: " + path.join(" -> ")));
+            addToOutput(("Shtegu Eulerit: " + path.join(" -> ")));
             break;
         case "qarku-eulerit":
             if(currentGraphType == "directed" || currentGraphType == "weighted"){
@@ -80,8 +78,7 @@ function executeCommand(){
                 break;
             }
             const circuit = findEulerianCircuit(graph)
-            let text = "Qarku Eulerit: " + circuit.join(" -> ");
-            addToOutput(text);
+            addToOutput(("Qarku Eulerit: " + circuit.join(" -> ")));
             break;
         case "matrica-fqinjesis":
             addToOutput(adjacencyMatrix(getCurrentGraph()));
@@ -89,11 +86,37 @@ function executeCommand(){
         case "matrica-incidences":
             addToOutput(incidenceMatrix(getCurrentGraph()));
             break;
+        case "qarku-hamiltonit":
+            break;
+        case "shtegu-hamiltonit":
+            break;
         default:
             addToOutput('Unknown command:' + command);
     }
 
     input.value = '';
+}
+
+// MAIN FUNCTION THAT ARE CALLED THROUGH A COMMAND FROM THE TERMINAL IN WEBSITE
+function addNode(args, graph){
+    const nodeData = graph._attributes;
+    
+    if(args[0] == undefined){
+        addToOutput("Nevojitet emri per nyjen, per ta shtuar nyjen ne graf.");
+        return;
+    } 
+    
+    const nodeIdExists = Object.keys(nodeData).find(key => nodeData[key] === args[0])
+    if(nodeIdExists !== undefined){
+        addToOutput(`Nyja '${args[0]}' ekziston tashme ne graf.`);
+        return;
+    }
+    
+    const nodeId = graph.nodes().length + 1;
+    addToOutput(`Ti ke shtuar ne graf nyjen '${args[0]}'`);
+    graph.addNode(nodeId);
+    graph.setAttribute(nodeId, args[0]);
+    visualizer.addNode(nodeId, args[0]);
 }
 
 function removeNode(node, graph){
@@ -107,71 +130,37 @@ function removeNode(node, graph){
     visualizer.removeNode(nodeId);
 }
 
-function doesNodeExistsByLabel(nodeLabel, graph){
+function nodeDegree(node, graph){
     const nodeData = graph._attributes;
-   
-    const node = Object.keys(nodeData).find(key => nodeData[key] === nodeLabel);
-    return node != null
-}
-
-function getNodeIdFromLabel(nodeLabel, graph){
-    const nodeData = graph._attributes;
-
-    for(key in nodeData){
-        if(nodeData[key] == nodeLabel)
-            return key;
-    }
-    return null;
-}
-
-function getCurrentGraph(){
-    if(currentGraphType == "simple"){return graph;}
-    if(currentGraphType == "pseudo"){return pseudoGraph;}
-    if(currentGraphType == "directed"){return diagraph;}
-    if(currentGraphType == "weighted"){return weightedGraph;}
-}
-
-function displayEdges(graph){
-    graph.forEachEdge(
-    (edge, attributes, source, target, sourceAttributes, targetAttributes) => {
-        console.log(`Edge from ${source} to ${target}`);
-    });
-}
-
-function disconnectNodes(fromNode, toNode, graph){
-    const nodeData = graph._attributes;
-
-    if(fromNode == null || toNode == null){
-        addToOutput("Duhen te jepni dy nyje qe jane ne graf, per te lidhur ato.");
+    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === node);
+    
+    if(nodeId == undefined){
+        addToOutput(`Nyja '${node}' nuk gjendet ne graf.`)
         return;
     }
 
-    const fromNodeId = Object.keys(nodeData).find(key => nodeData[key] === fromNode);
-    const toNodeId = Object.keys(nodeData).find(key => nodeData[key] === toNode);
+    addToOutput(`Nyje '${node}' ka shkallen: `+ graph.degree(nodeId));
+}
 
-    if(fromNodeId == null){ addToOutput(`Nyja '${fromNode}' nuk gjendet ne graf.`); return;}
-    if(toNodeId == null){ addToOutput(`Nyja '${toNode}' nuk gjendet ne graf.`); return;}
+function printNodeNeighbours(node, graph){
+    const nodeData = graph._attributes;
+    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === node);
 
-    if(currentGraphType == "directed"){
-        if(!graph.hasDirectedEdge(fromNodeId, toNodeId)){ addToOutput(`Nyja ${fromNode} nuk eshte e lidhur me nyjen ${toNode}.`); return;}
-
-        graph.dropEdge(fromNodeId, toNodeId);
-        visualizer.removeEdge(fromNodeId, toNodeId);
+    if(!graph.hasNode(nodeId)){
+        addToOutput(`Nyja '${node}' nuk gjendet ne graf.`);
         return;
     }
 
-    try{
-        if(graph.hasEdge(fromNodeId, toNodeId)){
-            graph.dropEdge(fromNodeId, toNodeId);
-            visualizer.removeEdge(fromNodeId, toNodeId);
+    const neighbors = graph.neighbors(nodeId);
+    let text = `Fqinjet e nyjes ${nodeData[nodeId]} jane: `;
+
+    for(let i = 0; i < neighbors.length; i++){
+        text += nodeData[neighbors[i]];
+        if (i < neighbors.length - 1){
+            text += ', '; 
         }
-        else{
-            graph.dropEdge(toNodeId, fromNodeId);
-            visualizer.removeEdge(toNodeId, fromNodeId);
-        }
-    } catch (error){
-        addToOutput(`Nyja ${fromNode} dhe ${toNode} nuk jane te lidhura.`);
     }
+    addToOutput(text);
 }
 
 function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
@@ -221,58 +210,115 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
     } 
 }
 
-function addNode(args, graph){
+function disconnectNodes(fromNode, toNode, graph){
     const nodeData = graph._attributes;
-    
-    if(args[0] == undefined){
-        addToOutput("Nevojitet emri per nyjen, per ta shtuar nyjen ne graf.");
-        return;
-    } 
-    
-    const nodeIdExists = Object.keys(nodeData).find(key => nodeData[key] === args[0])
-    if(nodeIdExists !== undefined){
-        addToOutput(`Nyja '${args[0]}' ekziston tashme ne graf.`);
+
+    if(fromNode == null || toNode == null){
+        addToOutput("Duhen te jepni dy nyje qe jane ne graf, per te lidhur ato.");
         return;
     }
-   
-    const nodeId = graph.nodes().length + 1;
-    addToOutput(`Ti ke shtuar ne graf nyjen '${args[0]}'`);
-    graph.addNode(nodeId);
-    graph.setAttribute(nodeId, args[0]);
-    visualizer.addNode(nodeId, args[0]);
+
+    const fromNodeId = Object.keys(nodeData).find(key => nodeData[key] === fromNode);
+    const toNodeId = Object.keys(nodeData).find(key => nodeData[key] === toNode);
+
+    if(fromNodeId == null){ addToOutput(`Nyja '${fromNode}' nuk gjendet ne graf.`); return;}
+    if(toNodeId == null){ addToOutput(`Nyja '${toNode}' nuk gjendet ne graf.`); return;}
+
+    if(currentGraphType == "directed"){
+        if(!graph.hasDirectedEdge(fromNodeId, toNodeId)){ addToOutput(`Nyja ${fromNode} nuk eshte e lidhur me nyjen ${toNode}.`); return;}
+
+        graph.dropEdge(fromNodeId, toNodeId);
+        visualizer.removeEdge(fromNodeId, toNodeId);
+        return;
+    }
+
+    try{
+        if(graph.hasEdge(fromNodeId, toNodeId)){
+            graph.dropEdge(fromNodeId, toNodeId);
+            visualizer.removeEdge(fromNodeId, toNodeId);
+        }
+        else{
+            graph.dropEdge(toNodeId, fromNodeId);
+            visualizer.removeEdge(toNodeId, fromNodeId);
+        }
+    } catch (error){
+        addToOutput(`Nyja ${fromNode} dhe ${toNode} nuk jane te lidhura.`);
+    }
 }
 
-function nodeDegree(node, graph){
-    const nodeData = graph._attributes;
-    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === node);
-    
-    if(nodeId == undefined){
-        addToOutput(`Nyja '${node}' nuk gjendet ne graf.`)
-        return;
+function findEulerianPath(graph){
+    if (!hasEulerianPath(graph)){
+        addToOutput('Grafi nuk ka shteg te eulerit.');
     }
 
-    addToOutput(`Nyje '${node}' ka shkallen: `+ graph.degree(nodeId));
+    const oddDegreeNodes = [];
+    const eulerianPath = [];
+
+    graph.forEachNode(node => {
+        if (graph.degree(node) % 2 === 1){
+            oddDegreeNodes.push(node);
+        }
+    });
+
+    const startNode = oddDegreeNodes[0];
+
+    findEulerianPathRecursive(graph, startNode, eulerianPath);
+    eulerianPath.reverse();
+
+    for(let nodeIndex = 0; nodeIndex < eulerianPath.length; nodeIndex++){
+        eulerianPath[nodeIndex] = convertNodeIdIntoNodeLabel(eulerianPath[nodeIndex], graph);
+    }
+
+    return eulerianPath;
 }
 
-function printNodeNeighbours(node, graph){
-    const nodeData = graph._attributes;
-    const nodeId = Object.keys(nodeData).find(key => nodeData[key] === node);
-
-    if(!graph.hasNode(nodeId)){
-        addToOutput(`Nyja '${node}' nuk gjendet ne graf.`);
-        return;
+function findEulerianCircuit(graph){
+    if (!isGraphEulerian(graph)){
+        addToOutput("Grafi nuk eshte graf eulerian, sepse nyjet e atij grafi duhen te jene me shkalle qift.");
     }
 
-    const neighbors = graph.neighbors(nodeId);
-    let text = `Fqinjet e nyjes ${nodeData[nodeId]} jane: `;
+    const edges = [];
+    const circle = [];
+    const startNode = graph.nodes()[0];
+    let currentNode = startNode;
 
-    for(let i = 0; i < neighbors.length; i++){
-        text += nodeData[neighbors[i]];
-        if (i < neighbors.length - 1){
-            text += ', '; 
+    graph.forEachEdge((edge, attr, source, target) => {
+        edges.push({ startNode: source, endNode: target });
+    });
+
+    while (edges.length > 0){
+        circle.push(currentNode);
+        const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
+        if (nextEdgeIndex !== -1){
+            const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
+            currentNode = nextEdge.endNode;
+        } else{
+            const i = edges.findIndex(edge => edge.endNode === currentNode);
+
+            if(i !== -1){
+                currentNode = edges.splice(i, 1)[0].startNode;
+            }
+            else{
+                // If no next edge is found, backtrack to find a node with remaining edges
+                for (let i = circle.length - 1; i >= 0; i--){
+                    const node = circle[i];
+                    const remainingEdges = edges.filter(edge => edge.startNode === node || edge.endNode === node);
+                    if (remainingEdges.length > 0){
+                        currentNode = node;
+                        break;
+                    }
+                }
+            }
         }
     }
-    addToOutput(text);
+
+    circle.push(currentNode);
+
+    for(let index = 0; index < circle.length; index++){
+        circle[index] = convertNodeIdIntoNodeLabel(circle[index], graph)
+    }
+
+    return circle;
 }
 
 function adjacencyMatrix(graph){
@@ -348,6 +394,31 @@ function incidenceMatrix(graph){
     return matrix;
 }
 
+// HELPER FUNCTIONS THAT ARE CALLED INSIDE THE MAIN FUNCTIONS
+function doesNodeExistsByLabel(nodeLabel, graph){
+    const nodeData = graph._attributes;
+   
+    const node = Object.keys(nodeData).find(key => nodeData[key] === nodeLabel);
+    return node != null
+}
+
+function getNodeIdFromLabel(nodeLabel, graph){
+    const nodeData = graph._attributes;
+
+    for(key in nodeData){
+        if(nodeData[key] == nodeLabel)
+            return key;
+    }
+    return null;
+}
+
+function getCurrentGraph(){
+    if(currentGraphType == "simple"){return graph;}
+    if(currentGraphType == "pseudo"){return pseudoGraph;}
+    if(currentGraphType == "directed"){return diagraph;}
+    if(currentGraphType == "weighted"){return weightedGraph;}
+}
+
 function convertNodeIdIntoNodeLabel(nodeId, graph){
     const nodeData = graph._attributes;
     return nodeData[nodeId];
@@ -378,55 +449,6 @@ function isGraphEulerian(graph){
     return oddDegreeCount === 0;
 }
 
-function findEulerianCircuit(graph){
-    if (!isGraphEulerian(graph)){
-        addToOutput("Grafi nuk eshte graf eulerian, sepse nyjet e atij grafi duhen te jene me shkalle qift.");
-    }
-
-    const edges = [];
-    const circle = [];
-    const startNode = graph.nodes()[0];
-    let currentNode = startNode;
-
-    graph.forEachEdge((edge, attr, source, target) => {
-        edges.push({ startNode: source, endNode: target });
-    });
-
-    while (edges.length > 0){
-        circle.push(currentNode);
-        const nextEdgeIndex = edges.findIndex(edge => edge.startNode === currentNode);
-        if (nextEdgeIndex !== -1){
-            const nextEdge = edges.splice(nextEdgeIndex, 1)[0];
-            currentNode = nextEdge.endNode;
-        } else{
-            const i = edges.findIndex(edge => edge.endNode === currentNode);
-
-            if(i !== -1){
-                currentNode = edges.splice(i, 1)[0].startNode;
-            }
-            else{
-                // If no next edge is found, backtrack to find a node with remaining edges
-                for (let i = circle.length - 1; i >= 0; i--){
-                    const node = circle[i];
-                    const remainingEdges = edges.filter(edge => edge.startNode === node || edge.endNode === node);
-                    if (remainingEdges.length > 0){
-                        currentNode = node;
-                        break;
-                    }
-                }
-            }
-        }
-    }
-
-    circle.push(currentNode);
-
-    for(let index = 0; index < circle.length; index++){
-        circle[index] = convertNodeIdIntoNodeLabel(circle[index], graph)
-    }
-
-    return circle;
-}
-
 function hasEulerianPath(graph){
     let oddDegreeCount = 0;
     graph.forEachNode(node =>{
@@ -454,28 +476,61 @@ function findEulerianPathRecursive(graph, startNode, eulerianPath){
     eulerianPath.push(startNode);
 }
 
-function findEulerianPath(graph){
-    if (!hasEulerianPath(graph)){
-        addToOutput('Grafi nuk ka shteg te eulerit.');
-    }
+// FOR TESTING NEW FEATURES
 
-    const oddDegreeNodes = [];
-    const eulerianPath = [];
-
-    graph.forEachNode(node => {
-        if (graph.degree(node) % 2 === 1){
-            oddDegreeNodes.push(node);
+function hasHamiltonPath(graph){
+    const order = graph.nodes().length;
+    const minDegree = Math.floor(order / 2);
+    for (const node of graph.nodes()){
+        if (graph.degree(node) < minDegree){
+            return false;
         }
-    });
-
-    const startNode = oddDegreeNodes[0];
-
-    findEulerianPathRecursive(graph, startNode, eulerianPath);
-    eulerianPath.reverse();
-
-    for(let nodeIndex = 0; nodeIndex < eulerianPath.length; nodeIndex++){
-        eulerianPath[nodeIndex] = convertNodeIdIntoNodeLabel(eulerianPath[nodeIndex], graph);
     }
 
-    return eulerianPath;
+    return true;
 }
+
+
+function findHamiltonianPath(graph){
+    if (!hasHamiltonPath(graph)){
+        throw new Error('Graph does not satisfy Dirac\'s condition. No Hamiltonian path exists.');
+    }
+
+    const visited = new Set();
+    const path = [];
+
+    function findPath(vertex) {
+        visited.add(vertex);
+        path.push(vertex);
+
+        if (visited.size === graph.nodes().length){
+            return true;
+        }
+
+        const neighbors = graph.neighbors(vertex);
+        for (const neighbor of neighbors){
+            if (!visited.has(neighbor)){
+                if (findPath(neighbor)){
+                    return true;
+                }
+            }
+        }
+
+        // If no further extension is possible, backtrack
+        visited.delete(vertex);
+        path.pop();
+        return false;
+    }
+
+    // Start the search from each vertex in the graph
+    for (const vertex of graph.nodes()){
+        if (findPath(vertex)) {
+            return path.forEach((node, index) => {
+                path[index] = convertNodeIdIntoNodeLabel(node, graph);
+            }); 
+        }
+    }
+
+    return null;
+}
+
