@@ -68,17 +68,17 @@ function executeCommand(){
                 addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar dhe tek grafi me peshe.");
                 break;
             }
-            const path = findEulerianPath(graph)
-            addToOutput(("Shtegu Eulerit: " + path.join(" -> ")));
+            const eulerianPath = findEulerianPath(graph)
+            addToOutput(("Shtegu Eulerit: " + eulerianPath.join(" -> ")));
             break;
         case "qarku-eulerit":
-            if(currentGraphType == "directed" || currentGraphType == "weighted"){
-                addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar dhe tek grafi me peshe.");
+            if(currentGraphType == "directed"){
+                addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar.");
                 addToOutput(currentGraphType);
                 break;
             }
-            const circuit = findEulerianCircuit(graph)
-            addToOutput(("Qarku Eulerit: " + circuit.join(" -> ")));
+            const eulerianCircuit = findEulerianCircuit(graph)
+            addToOutput(("Qarku Eulerit: " + eulerianCircuit.join(" -> ")));
             break;
         case "matrica-fqinjesis":
             addToOutput(adjacencyMatrix(getCurrentGraph()));
@@ -86,9 +86,25 @@ function executeCommand(){
         case "matrica-incidences":
             addToOutput(incidenceMatrix(getCurrentGraph()));
             break;
-        case "qarku-hamiltonit":
-            break;
         case "shtegu-hamiltonit":
+            if(currentGraphType == "directed"){
+                addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar.");
+                addToOutput(currentGraphType);
+                break;
+            }
+            const hamiltonianPath = findHamiltonianPath(getCurrentGraph());
+            hamiltonianPath.forEach((node, index) => {hamiltonianPath[index] = convertNodeIdIntoNodeLabel(node, graph);});
+            addToOutput("Shtegu Hamiltonit: " + hamiltonianPath.join(" -> "));
+            break;
+        case "qarku-hamiltonit":
+            if(currentGraphType == "directed"){
+                addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar.");
+                addToOutput(currentGraphType);
+                break;
+            }
+            const hamiltonianCircuit = findHamiltonianPath(getCurrentGraph());
+            hamiltonianCircuit.forEach((node, index) => {hamiltonianCircuit[index] = convertNodeIdIntoNodeLabel(node, graph);});
+            addToOutput("Qarku Hamiltonit: " + hamiltonianCircuit.join(" -> "));
             break;
         default:
             addToOutput('Unknown command:' + command);
@@ -476,8 +492,6 @@ function findEulerianPathRecursive(graph, startNode, eulerianPath){
     eulerianPath.push(startNode);
 }
 
-// FOR TESTING NEW FEATURES
-
 function hasHamiltonPath(graph){
     const order = graph.nodes().length;
     const minDegree = Math.floor(order / 2);
@@ -490,6 +504,14 @@ function hasHamiltonPath(graph){
     return true;
 }
 
+function findHamiltonianCircuit(graph){
+    const path = findHamiltonianPath(graph);
+
+    const firstNode = path[0];
+    const lastNode = path[path.length - 1];
+    if(graph.hasEdge(firstNode, lastNode) || graph.hasEdge(lastNode, firstNode)){ path.push(firstNode); return path; }
+    else addToOutput("Grafi nuk ka qark te hamiltonit")
+}
 
 function findHamiltonianPath(graph){
     if (!hasHamiltonPath(graph)){
@@ -525,12 +547,14 @@ function findHamiltonianPath(graph){
     // Start the search from each vertex in the graph
     for (const vertex of graph.nodes()){
         if (findPath(vertex)) {
-            return path.forEach((node, index) => {
-                path[index] = convertNodeIdIntoNodeLabel(node, graph);
-            }); 
+            // return path.forEach((node, index) => {
+            //     path[index] = convertNodeIdIntoNodeLabel(node, graph);
+            // }); 
+            return path;
         }
     }
 
     return null;
 }
 
+// FOR TESTING NEW FEATURES
