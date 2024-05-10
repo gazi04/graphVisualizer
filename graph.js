@@ -107,7 +107,7 @@ function executeCommand(){
             addToOutput("Qarku Hamiltonit: " + hamiltonianCircuit.join(" -> "));
             break;
         default:
-            addToOutput('Unknown command:' + command);
+            addToOutput('Komand e panjohur:' + command);
     }
 
     input.value = '';
@@ -209,6 +209,11 @@ function connectNodes(fromNodeLabel, toNodeLabel, weight, graph){
 
     if(fromNodeId == null){ addToOutput(`Nyja '${fromNodeLabel}' nuk gjendet ne graf.`); return;}
     if(toNodeId == null){ addToOutput(`Nyja '${toNodeLabel}' nuk gjendet ne graf.`); return;}
+
+    if(currentGraphType == "simple" && (graph.hasEdge(fromNodeId, toNodeId) || graph.hasEdge(toNodeId, fromNodeId))){
+        addToOutput(`Ekziston nje lidhje ndermjet '${fromNodeLabel}' dhe '${toNodeLabel}'`);
+        return;
+    }
 
     try{
         if(currentGraphType == "weighted"){
@@ -410,100 +415,6 @@ function incidenceMatrix(graph){
     return matrix;
 }
 
-// HELPER FUNCTIONS THAT ARE CALLED INSIDE THE MAIN FUNCTIONS
-function doesNodeExistsByLabel(nodeLabel, graph){
-    const nodeData = graph._attributes;
-   
-    const node = Object.keys(nodeData).find(key => nodeData[key] === nodeLabel);
-    return node != null
-}
-
-function getNodeIdFromLabel(nodeLabel, graph){
-    const nodeData = graph._attributes;
-
-    for(key in nodeData){
-        if(nodeData[key] == nodeLabel)
-            return key;
-    }
-    return null;
-}
-
-function getCurrentGraph(){
-    if(currentGraphType == "simple"){return graph;}
-    if(currentGraphType == "pseudo"){return pseudoGraph;}
-    if(currentGraphType == "directed"){return diagraph;}
-    if(currentGraphType == "weighted"){return weightedGraph;}
-}
-
-function convertNodeIdIntoNodeLabel(nodeId, graph){
-    const nodeData = graph._attributes;
-    return nodeData[nodeId];
-}
-
-function cloneGraph(originalGraph){
-    const clonedGraph = new graphology.Graph();
-
-    originalGraph.forEachNode(node => {
-        clonedGraph.addNode(node);
-    });
-
-    originalGraph.forEachEdge(
-    (edge, attributes, source, target, sourceAttributes, targetAttributes) => {
-        clonedGraph.addEdge(source, target, { ...attributes });
-    });
-
-    return clonedGraph;
-}
-
-function isGraphEulerian(graph){
-    let oddDegreeCount = 0;
-    graph.forEachNode(node => {
-        if (graph.degree(node) % 2 !== 0){
-            oddDegreeCount++;
-        }
-    });
-    return oddDegreeCount === 0;
-}
-
-function hasEulerianPath(graph){
-    let oddDegreeCount = 0;
-    graph.forEachNode(node =>{
-        if (graph.degree(node) % 2 !== 0){
-            oddDegreeCount++;
-        }
-    });
-    return oddDegreeCount === 2;
-}
-
-function findEulerianPathRecursive(graph, startNode, eulerianPath){
-    const neighbors = graph.neighbors(startNode);
-
-    while (neighbors.length > 0){
-        const nextNode = neighbors.shift();
-        const edge = graph.hasEdge(startNode, nextNode) ? [startNode, nextNode] : [nextNode, startNode];
-
-        if (graph.hasEdge(edge[0], edge[1])){
-            graph.dropEdge(edge[0], edge[1]);
-
-            findEulerianPathRecursive(graph, nextNode, eulerianPath);
-        }
-    }
-
-    eulerianPath.push(startNode);
-}
-
-function hasHamiltonPath(graph){
-    const order = graph.nodes().length;
-    const minDegree = Math.floor(order / 2);
-    for (const node of graph.nodes()){
-        if (graph.degree(node) < minDegree){
-            return false;
-        }
-    }
-
-    return true;
-}
-
 function findHamiltonianCircuit(graph){
     const path = findHamiltonianPath(graph);
 
@@ -556,5 +467,85 @@ function findHamiltonianPath(graph){
 
     return null;
 }
+
+// HELPER FUNCTIONS THAT ARE CALLED INSIDE THE MAIN FUNCTIONS
+function doesNodeExistsByLabel(nodeLabel, graph){
+    const nodeData = graph._attributes;
+   
+    const node = Object.keys(nodeData).find(key => nodeData[key] === nodeLabel);
+    return node != null
+}
+
+function getNodeIdFromLabel(nodeLabel, graph){
+    const nodeData = graph._attributes;
+
+    for(key in nodeData){
+        if(nodeData[key] == nodeLabel)
+            return key;
+    }
+    return null;
+}
+
+function getCurrentGraph(){
+    if(currentGraphType == "simple"){return graph;}
+    if(currentGraphType == "pseudo"){return pseudoGraph;}
+    if(currentGraphType == "directed"){return diagraph;}
+    if(currentGraphType == "weighted"){return weightedGraph;}
+}
+
+function convertNodeIdIntoNodeLabel(nodeId, graph){
+    const nodeData = graph._attributes;
+    return nodeData[nodeId];
+}
+
+function isGraphEulerian(graph){
+    let oddDegreeCount = 0;
+    graph.forEachNode(node => {
+        if (graph.degree(node) % 2 !== 0){
+            oddDegreeCount++;
+        }
+    });
+    return oddDegreeCount === 0;
+}
+
+function hasEulerianPath(graph){
+    let oddDegreeCount = 0;
+    graph.forEachNode(node =>{
+        if (graph.degree(node) % 2 !== 0){
+            oddDegreeCount++;
+        }
+    });
+    return oddDegreeCount === 2;
+}
+
+function findEulerianPathRecursive(graph, startNode, eulerianPath){
+    const neighbors = graph.neighbors(startNode);
+
+    while (neighbors.length > 0){
+        const nextNode = neighbors.shift();
+        const edge = graph.hasEdge(startNode, nextNode) ? [startNode, nextNode] : [nextNode, startNode];
+
+        if (graph.hasEdge(edge[0], edge[1])){
+            graph.dropEdge(edge[0], edge[1]);
+
+            findEulerianPathRecursive(graph, nextNode, eulerianPath);
+        }
+    }
+
+    eulerianPath.push(startNode);
+}
+
+function hasHamiltonPath(graph){
+    const order = graph.nodes().length;
+    const minDegree = Math.floor(order / 2);
+    for (const node of graph.nodes()){
+        if (graph.degree(node) < minDegree){
+            return false;
+        }
+    }
+
+    return true;
+}
+
 
 // FOR TESTING NEW FEATURES
