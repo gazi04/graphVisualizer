@@ -29,7 +29,7 @@ function executeCommand(){
             printVerticies();
             break;
         case "e":
-            // * it returns the set of edges
+            printEdges();
             break;
         case 'shto':
             if(args != null){ addNode(args, getCurrentGraph()); }
@@ -133,6 +133,19 @@ function printVerticies(){
     nodes.join(', ');
     result = result + nodes + "}";
 
+    addToOutput(result);
+}
+
+function printEdges(){
+    const currentGraph = getCurrentGraph();
+    const edges = [];
+    let result = "{";
+
+    currentGraph.forEachEdge((edge, attribute, source, target) => {
+        console.log(source, target);
+        edges.push(`(${convertNodeIdIntoNodeLabel(source, currentGraph)}, ${convertNodeIdIntoNodeLabel(target, currentGraph)})`);
+    })
+    result = result + edges.join(", ") + "}";
     addToOutput(result);
 }
 
