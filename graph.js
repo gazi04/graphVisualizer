@@ -25,6 +25,12 @@ function executeCommand(){
     var args = parts.slice(1);
 
     switch (command){
+        case "v":
+            printVerticies();
+            break;
+        case "e":
+            // * it returns the set of edges
+            break;
         case 'shto':
             if(args != null){ addNode(args, getCurrentGraph()); }
             else{ addToOutput("Ju duhet te jepni nyjen."); }
@@ -114,6 +120,22 @@ function executeCommand(){
 }
 
 // MAIN FUNCTION THAT ARE CALLED THROUGH A COMMAND FROM THE TERMINAL IN WEBSITE
+function printVerticies(){
+    const currentGraph = getCurrentGraph();
+    const nodes = currentGraph.nodes();
+    let result = "{";
+
+    // * the nodes array contains only the ids of the node, so we need to convert them to their labels
+    nodes.forEach((nodeId, index) => {
+        nodes[index] = convertNodeIdIntoNodeLabel(nodeId, currentGraph);
+    })
+
+    nodes.join(', ');
+    result = result + nodes + "}";
+
+    addToOutput(result);
+}
+
 function addNode(args, graph){
     const nodeData = graph._attributes;
     
