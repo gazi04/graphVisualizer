@@ -18,6 +18,10 @@
 #output {
   min-height: 200px;
   overflow-y: auto;
+  max-height: 50%;
+  background-color: black;
+  color: #fff;
+  width: 98%;
 }
 
 .input {
