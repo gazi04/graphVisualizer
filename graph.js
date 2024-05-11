@@ -10,9 +10,9 @@ function addToOutput(text){
     const outputDiv = document.getElementById("output");
     if (Array.isArray(text)){
         const matrixString = text.map(row => row.join('\t')).join('\n');
-        outputDiv.innerHTML += `<pre>${matrixString}</pre>`;
+        outputDiv.innerHTML += matrixString + "\n";
     } else{
-        outputDiv.innerHTML += `<div>${text}</div>`;
+        outputDiv.innerHTML += text + "\n";
     }
     outputDiv.scrollTop = output.scrollHeight;
 }
