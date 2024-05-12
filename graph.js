@@ -8,6 +8,7 @@ input.addEventListener("keydown", function(event){
 
 function addToOutput(text){
     const outputDiv = document.getElementById("output");
+    const input = document.getElementById("commandInput");
     if (Array.isArray(text)){
         const matrixString = text.map(row => row.join('\t')).join('\n');
         outputDiv.innerHTML += matrixString + "\n";
@@ -15,6 +16,7 @@ function addToOutput(text){
         outputDiv.innerHTML += text + "\n";
     }
     outputDiv.scrollTop = output.scrollHeight;
+    input.value = "";
 }
 
 function executeCommand(){
@@ -24,6 +26,7 @@ function executeCommand(){
     var command = parts[0];
     var args = parts.slice(1);
 
+    // TODO rewrite the messages that are displayed in the websites artificial terminal
     switch (command){
         case "v":
             printVerticies();
@@ -123,7 +126,7 @@ function executeCommand(){
 function printVerticies(){
     const currentGraph = getCurrentGraph();
     const nodes = currentGraph.nodes();
-    let result = "{";
+    let result = "V={";
 
     // * the nodes array contains only the ids of the node, so we need to convert them to their labels
     nodes.forEach((nodeId, index) => {
@@ -139,7 +142,7 @@ function printVerticies(){
 function printEdges(){
     const currentGraph = getCurrentGraph();
     const edges = [];
-    let result = "{";
+    let result = "E={";
 
     currentGraph.forEachEdge((edge, attribute, source, target) => {
         console.log(source, target);
@@ -153,7 +156,7 @@ function addNode(args, graph){
     const nodeData = graph._attributes;
     
     if(args[0] == undefined){
-        addToOutput("Nevojitet emri per nyjen, per ta shtuar nyjen ne graf.");
+        addToOutput("Nevojitet emri per nyjen, per krijuar nje nyjen te re.");
         return;
     } 
     
@@ -179,6 +182,7 @@ function removeNode(node, graph){
     const nodeId = getNodeIdFromLabel(node, graph);
     graph.dropNode(nodeId);
     visualizer.removeNode(nodeId);
+    addToOutput(`Nyja '${node}' eshte fequr me sukses nga grafi.`);
 }
 
 function nodeDegree(node, graph){
@@ -190,7 +194,7 @@ function nodeDegree(node, graph){
         return;
     }
 
-    addToOutput(`Nyje '${node}' ka shkallen: `+ graph.degree(nodeId));
+    addToOutput(`Nyje '${node}' ka shkallen: `+ graph.degree(nodeId) + ".");
 }
 
 function printNodeNeighbours(node, graph){
@@ -331,6 +335,7 @@ function findEulerianPath(graph){
 function findEulerianCircuit(graph){
     if (!isGraphEulerian(graph)){
         addToOutput("Grafi nuk eshte graf eulerian, sepse nyjet e atij grafi duhen te jene me shkalle qift.");
+        return;
     }
 
     const edges = [];
