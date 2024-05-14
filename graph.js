@@ -69,7 +69,7 @@ function executeCommand(){
             }
 
             const pathAndCost = visualizer.dijkstrasAlgorithm(args[0], args[1]);
-            addToOutput("Rruga me e shkurter eshte: " + pathAndCost[0]);
+            addToOutput("Rruga me e shkurter duke perdorur algoritmin Dijkstra eshte\n" + pathAndCost[0]);
             addToOutput("Me koston " + pathAndCost[1]); 
             break;
         case "shtegu-eulerit":
@@ -80,6 +80,7 @@ function executeCommand(){
             const eulerianPath = findEulerianPath(graph)
             addToOutput(("Shtegu Eulerit: " + eulerianPath.join(" -> ")));
             break;
+        // TODO there is a bug if we try to find a eulerian circuit
         case "qarku-eulerit":
             if(currentGraphType == "directed"){
                 addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar.");
@@ -538,6 +539,7 @@ function convertNodeIdIntoNodeLabel(nodeId, graph){
     return nodeData[nodeId];
 }
 
+// ! HERE LIES THE BUG IT'S NOT COUNTING THE NODES CORRECTLY
 function isGraphEulerian(graph){
     let oddDegreeCount = 0;
     graph.forEachNode(node => {
