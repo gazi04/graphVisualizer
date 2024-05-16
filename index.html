@@ -17,9 +17,6 @@
             <button onclick="setGraphType('pseudo')">Pseudograph</button>
             <button onclick="setGraphType('directed')">Directed Graph</button>
             <button onclick="setGraphType('weighted')">Weighted Graph</button>
-            <button onclick="">Download Graph</button>
-            <button onclick="">Upload Graph</button>
-            <div id="graphTypeIndicator">Current Graph Type: Simple Graph</div>
         </div>
 
         <div class="right">
@@ -27,6 +24,7 @@
         </div>
         
         <div class="left">
+            <h3 style="text-align: center;" id="graphType">-----------Miresevini tek grafi i thjesht-----------</h3>
             <div class="terminal">
                 <textarea id="output" readonly></textarea>
                 <input type="text" id="commandInput" class="input" autofocus>
@@ -100,6 +98,9 @@
                 visualizer.clearEdges();
                 graph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
+
+                const terminalOutput = document.getElementById("graphType");
+                terminalOutput.value = "-----------Miresevini tek grafi i thjesht-----------";
             }
             else if(type == "pseudo"){
                 currentGraphType = "pseudo";
@@ -113,6 +114,9 @@
                 visualizer.clearEdges();
                 pseudoGraph.forEachEdge((edge, attr, source, target) => {visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
+
+                const terminalOutput = document.getElementById("graphType");
+                terminalOutput.value = "-----------Miresevini tek pseudo grafi-----------";
             }
             else if(type == "directed"){
                 currentGraphType = "directed";
@@ -126,6 +130,9 @@
                 visualizer.clearEdges();
                 diagraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
+
+                const terminalOutput = document.getElementById("graphType");
+                terminalOutput.value = "-----------Miresevini tek grafi e orientuar-----------";
             }
             else if(type == "weighted"){
                 currentGraphType = "weighted";
@@ -139,10 +146,10 @@
                 visualizer.clearEdges();
                 weightedGraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdgeWithWeight(source, target, attr.value);});
                 visualizer.updateGraph();
-            }
 
-            document.getElementById("graphTypeIndicator").innerHTML = `Current Graph Type: 
-            ${currentGraphType.charAt(0).toUpperCase()+currentGraphType.slice(1)} Graph`;
+                const terminalOutput = document.getElementById("graphType");
+                terminalOutput.value = "-----------Miresevini tek grafi me peshe-----------";
+            }
             visualizer.Network.redraw();
         }
     </script>
