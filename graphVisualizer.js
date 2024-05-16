@@ -120,12 +120,6 @@ class GraphVisualizer{
 
         this.Nodes.remove(nodeId);
 
-        this.Edges.forEach(edge => {
-            if (edge.from === nodeId || edge.to === nodeId) {
-                this.Edges.remove(edge.id);
-            }
-        });
-
         this.updateGraph();
     }
 

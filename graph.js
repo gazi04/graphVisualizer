@@ -35,11 +35,11 @@ function executeCommand(){
             printEdges();
             break;
         case 'shto':
-            if(args != null){ addNode(args, getCurrentGraph()); }
+            if(args[0] != null){ addNode(args[0], getCurrentGraph()); }
             else{ addToOutput("Ju duhet te jepni nyjen."); }
             break;
         case "fshij":
-            if(args != null){ addToOutput("Ju duhet te jepni nyjen per ta fshir ate nga grafi."); }
+            if(args[0] == null){ addToOutput("Ju duhet te jepni nyjen per ta fshir ate nga grafi."); }
             else{ removeNode(args[0], getCurrentGraph()); }
             break;
         case "shkalla":
@@ -80,7 +80,6 @@ function executeCommand(){
             const eulerianPath = findEulerianPath(graph)
             addToOutput(("Shtegu Eulerit: " + eulerianPath.join(" -> ")));
             break;
-        // TODO there is a bug if we try to find a eulerian circuit
         case "qarku-eulerit":
             if(currentGraphType == "directed"){
                 addToOutput("Qarku eulerit nuk mund te gjindet tek grafi i orientuar.");
@@ -182,7 +181,12 @@ function removeNode(node, graph){
 
     const nodeId = getNodeIdFromLabel(node, graph);
     graph.dropNode(nodeId);
-    visualizer.removeNode(nodeId);
+    if(currentGraphType == "simple"){
+        visualizer.removeNode(nodeId)
+    }
+    else{
+        visualizer.Nodes.remove(`${nodeId}`);
+    }
     addToOutput(`Nyja '${node}' eshte fequr me sukses nga grafi.`);
 }
 
@@ -539,7 +543,6 @@ function convertNodeIdIntoNodeLabel(nodeId, graph){
     return nodeData[nodeId];
 }
 
-// ! HERE LIES THE BUG IT'S NOT COUNTING THE NODES CORRECTLY
 function isGraphEulerian(graph){
     let oddDegreeCount = 0;
     graph.forEachNode(node => {

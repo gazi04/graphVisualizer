@@ -70,9 +70,9 @@
                 edgeData.forEach(edge => {
                     if(!(edge.from === edge.to)){
                         graph.addEdge(edge.from, edge.to);
-                        // By default the graph doesn't allow self loops, that's the reason why the line below
-                        // is inside the body of this if statement 
-                        visualizer.addEdge(edge.from.toString(), edge.to.toString());
+                        // HINT FOR MYSELF 
+                        // the nodes were give to the visualizer as string and I changed that to integers, 
+                        visualizer.addEdge(edge.from, edge.to);
                     }
                     pseudoGraph.addEdge(edge.from, edge.to);
                     diagraph.addDirectedEdge(edge.from, edge.to);
