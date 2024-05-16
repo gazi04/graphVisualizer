@@ -99,8 +99,8 @@
                 graph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
 
-                const terminalOutput = document.getElementById("graphType");
-                terminalOutput.value = "-----------Miresevini tek grafi i thjesht-----------";
+                const graphIndicator = document.getElementById("graphType");
+                graphIndicator.innerHTML = "-----------Miresevini tek grafi i thjesht-----------";
             }
             else if(type == "pseudo"){
                 currentGraphType = "pseudo";
@@ -115,8 +115,8 @@
                 pseudoGraph.forEachEdge((edge, attr, source, target) => {visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
 
-                const terminalOutput = document.getElementById("graphType");
-                terminalOutput.value = "-----------Miresevini tek pseudo grafi-----------";
+                const graphIndicator = document.getElementById("graphType");
+                graphIndicator.innerHTML = "-----------Miresevini tek pseudo grafi-----------";
             }
             else if(type == "directed"){
                 currentGraphType = "directed";
@@ -131,8 +131,8 @@
                 diagraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdge(source, target);});
                 visualizer.updateGraph();
 
-                const terminalOutput = document.getElementById("graphType");
-                terminalOutput.value = "-----------Miresevini tek grafi e orientuar-----------";
+                const graphIndicator = document.getElementById("graphType");
+                graphIndicator.innerHTML = "-----------Miresevini tek grafi e orientuar-----------";
             }
             else if(type == "weighted"){
                 currentGraphType = "weighted";
@@ -147,8 +147,8 @@
                 weightedGraph.forEachEdge((edge, attr, source, target) =>{visualizer.addEdgeWithWeight(source, target, attr.value);});
                 visualizer.updateGraph();
 
-                const terminalOutput = document.getElementById("graphType");
-                terminalOutput.value = "-----------Miresevini tek grafi me peshe-----------";
+                const graphIndicator = document.getElementById("graphType");
+                graphIndicator.innerHTML = "-----------Miresevini tek grafi me peshe-----------";
             }
             visualizer.Network.redraw();
         }
