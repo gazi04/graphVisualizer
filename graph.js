@@ -78,8 +78,10 @@ function executeCommand(){
                 break;
             }
             const eulerianPath = findEulerianPath(graph)
+            
             if(eulerianPath == null)
                 break;
+
             addToOutput(("Shtegu Eulerit: " + eulerianPath.join(" -> ")));
             break;
         case "qarku-eulerit":
@@ -89,6 +91,10 @@ function executeCommand(){
                 break;
             }
             const eulerianCircuit = findEulerianCircuit(graph)
+
+            if(eulerianCircuit == null)
+                break;
+
             addToOutput(("Qarku Eulerit: " + eulerianCircuit.join(" -> ")));
             break;
         case "matrica-fqinjesis":
