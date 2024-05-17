@@ -79,8 +79,7 @@ function executeCommand(){
             }
             const eulerianPath = findEulerianPath(graph)
             
-            if(eulerianPath == null)
-                break;
+            if(eulerianPath == null) break;
 
             addToOutput(("Shtegu Eulerit: " + eulerianPath.join(" -> ")));
             break;
@@ -92,8 +91,7 @@ function executeCommand(){
             }
             const eulerianCircuit = findEulerianCircuit(graph)
 
-            if(eulerianCircuit == null)
-                break;
+            if(eulerianCircuit == null) break;
 
             addToOutput(("Qarku Eulerit: " + eulerianCircuit.join(" -> ")));
             break;
@@ -110,6 +108,9 @@ function executeCommand(){
                 break;
             }
             const hamiltonianPath = findHamiltonianPath(getCurrentGraph());
+
+            if(hamiltonianPath == null) break;
+
             hamiltonianPath.forEach((node, index) => {hamiltonianPath[index] = convertNodeIdIntoNodeLabel(node, graph);});
             addToOutput("Shtegu Hamiltonit: " + hamiltonianPath.join(" -> "));
             break;
@@ -120,6 +121,9 @@ function executeCommand(){
                 break;
             }
             const hamiltonianCircuit = findHamiltonianPath(getCurrentGraph());
+
+            if(hamiltonianCircuit == null) break;
+
             hamiltonianCircuit.forEach((node, index) => {hamiltonianCircuit[index] = convertNodeIdIntoNodeLabel(node, graph);});
             addToOutput("Qarku Hamiltonit: " + hamiltonianCircuit.join(" -> "));
             break;
@@ -480,7 +484,8 @@ function findHamiltonianCircuit(graph){
 
 function findHamiltonianPath(graph){
     if (!hasHamiltonPath(graph)){
-        throw new Error('Graph does not satisfy Dirac\'s condition. No Hamiltonian path exists.');
+        addToOutput('Graph does not satisfy Dirac\'s condition. No Hamiltonian path exists.');
+        return;
     }
 
     const visited = new Set();
