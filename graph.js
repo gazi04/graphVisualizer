@@ -78,6 +78,8 @@ function executeCommand(){
                 break;
             }
             const eulerianPath = findEulerianPath(graph)
+            if(eulerianPath == null)
+                break;
             addToOutput(("Shtegu Eulerit: " + eulerianPath.join(" -> ")));
             break;
         case "qarku-eulerit":
@@ -314,6 +316,7 @@ function disconnectNodes(fromNode, toNode, graph){
 function findEulerianPath(graph){
     if (!hasEulerianPath(graph)){
         addToOutput('Grafi nuk ka shteg te eulerit.');
+        return;
     }
 
     const oddDegreeNodes = [];
