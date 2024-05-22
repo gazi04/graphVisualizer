@@ -26,8 +26,10 @@ function executeCommand(){
     var command = parts[0];
     var args = parts.slice(1);
 
-    // TODO rewrite the messages that are displayed in the websites artificial terminal
     switch (command){
+        case "?":
+            help()
+            break;
         case "v":
             printVerticies();
             break;
@@ -43,11 +45,12 @@ function executeCommand(){
             else{ removeNode(args[0], getCurrentGraph()); }
             break;
         case "shkalla":
-            if(args[0] == null){ addToOutput("Ju duhet te jepni nyjen"); }
+            if(args[0] == null){ addToOutput("Ju duhet te jepni nje nyje qe ekziston ne graf."); }
             else{ nodeDegree(args[0], getCurrentGraph()); }
             break;
         case "fqinjet":
-            printNodeNeighbours(args[0], getCurrentGraph());
+            if(args[0] == null){ addToOutput("Ju duhet te jepni nje nyje qe ekziston ne graf."); }
+            else{ printNodeNeighbours(args[0], getCurrentGraph()); }
             break;
         case "lidh":
             connectNodes(args[0], args[1], args[2], getCurrentGraph());
@@ -135,6 +138,36 @@ function executeCommand(){
 }
 
 // MAIN FUNCTION THAT ARE CALLED THROUGH A COMMAND FROM THE TERMINAL IN WEBSITE
+function help(){
+    const commands = [
+        { command: "?", description: "Printo kete mesazh ndihme" },
+        { command: "v", description: "Printo te gjitha nyjet" },
+        { command: "e", description: "Printo te gjitha skajet" },
+        { command: "shto <nyje>", description: "Shto nje nyje ne graf" },
+        { command: "fshij <nyje>", description: "Hiq nje nyje nga grafi" },
+        { command: "shkalla <nyje>", description: "Printo shkallen e nje nyje" },
+        { command: "fqinjet <nyje>", description: "Printo fqinjet e nje nyje" },
+        { command: "lidh <nyje1> <nyje2> [pesha]", description: "Lidho dy nyje (opsionalisht me peshe)" },
+        { command: "qlidh <nyje1> <nyje2>", description: "Shkeput dy nyje" },
+        { command: "dijkstra <fillim> <fund>", description: "Gjej rrugen me te shkurter duke perdorur algoritmin e Dijkstra" },
+        { command: "shtegu-eulerit", description: "Gjej nje shteg Eulerian" },
+        { command: "qarku-eulerit", description: "Gjej nje qark Eulerian" },
+        { command: "matrica-fqinjesis", description: "Printo matricen e fqinjesise" },
+        { command: "matrica-incidences", description: "Printo matricen e incidences" },
+        { command: "shtegu-hamiltonit", description: "Gjej nje shteg Hamiltonian" },
+        { command: "qarku-hamiltonit", description: "Gjej nje qark Hamiltonian" }
+    ];
+
+    let outputText = "Komandat\t\tPershkrimet\n";
+    outputText += "-----------------------------------------\n";
+
+    commands.forEach(command => {
+        outputText += `${command.command}\t\t${command.description}\n`;
+    });
+
+    addToOutput(outputText);
+}
+
 function printVerticies(){
     const currentGraph = getCurrentGraph();
     const nodes = currentGraph.nodes();
@@ -224,6 +257,11 @@ function printNodeNeighbours(node, graph){
     }
 
     const neighbors = graph.neighbors(nodeId);
+    if(neighbors.length == 0){
+        addToOutput(`Nyja (${node}) nuk ka nyje fqinje`);
+        return;
+    }
+
     let text = `Fqinjet e nyjes ${nodeData[nodeId]} jane: `;
 
     for(let i = 0; i < neighbors.length; i++){
