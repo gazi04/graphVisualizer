@@ -149,23 +149,24 @@ function help(){
         { command: "fqinjet <nyje>", description: "Printo fqinjet e nje nyje" },
         { command: "lidh <nyje1> <nyje2> [pesha]", description: "Lidho dy nyje (opsionalisht me peshe)" },
         { command: "qlidh <nyje1> <nyje2>", description: "Shkeput dy nyje" },
-        { command: "dijkstra <fillim> <fund>", description: "Gjej rrugen me te shkurter duke perdorur algoritmin e Dijkstra" },
-        { command: "shtegu-eulerit", description: "Gjej nje shteg Eulerian" },
-        { command: "qarku-eulerit", description: "Gjej nje qark Eulerian" },
+        { command: "dijkstra <fillim> <fund>", description: "Gjen rrugen me te shkurter duke perdorur algoritmin e Dijkstra" },
+        { command: "shtegu-eulerit", description: "Gjen nje shteg Eulerian" },
+        { command: "qarku-eulerit", description: "Gjen nje qark Eulerian" },
         { command: "matrica-fqinjesis", description: "Printo matricen e fqinjesise" },
         { command: "matrica-incidences", description: "Printo matricen e incidences" },
-        { command: "shtegu-hamiltonit", description: "Gjej nje shteg Hamiltonian" },
-        { command: "qarku-hamiltonit", description: "Gjej nje qark Hamiltonian" }
+        { command: "shtegu-hamiltonit", description: "Gjen nje shteg Hamiltonian" },
+        { command: "qarku-hamiltonit", description: "Gjen nje qark Hamiltonian" }
     ];
 
-    let outputText = "Komandat\t\tPershkrimet\n";
-    outputText += "-----------------------------------------\n";
+    let outputHTML = '<table>';
+    outputHTML += '<tr><th>Komandat</th><th>Pershkrimet</th></tr>';
 
     commands.forEach(command => {
-        outputText += `${command.command}\t\t${command.description}\n`;
+        outputHTML += `<tr><td>${command.command}</td><td>${command.description}</td></tr>`;
     });
 
-    addToOutput(outputText);
+    outputHTML += '</table>';
+    document.getElementById('output').innerHTML = outputHTML;
 }
 
 function printVerticies(){
