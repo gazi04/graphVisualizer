@@ -9,26 +9,25 @@
     <script src="PriorityQueue.js"></script>
     <script src="graphVisualizer.js"></script>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=VT323&display=swap">
 </head>
 <body>
-    <div class="grid">
+    <div class="container">
         <div class="navbar">
             <button onclick="setGraphType('simple')">Simple Graph</button>
             <button onclick="setGraphType('pseudo')">Pseudograph</button>
             <button onclick="setGraphType('directed')">Directed Graph</button>
             <button onclick="setGraphType('weighted')">Weighted Graph</button>
         </div>
-
-        <div class="right">
-            <div id="mynetwork"></div>
-        </div>
-        
-        <div class="left">
-            <h3 style="text-align: center;" id="graphType">-----------Miresevini tek grafi i thjesht-----------</h3>
-            <div class="terminal">
-                <textarea id="output" style="outline: none; resize: none; cursor: default;" readonly></textarea>
-                <input type="text" id="commandInput" class="input" autofocus>
+        <div class="content">
+            <div class="terminal-section">
+                <h3 id="graphType">Miresevini tek grafi i thjesht</h3>
+                <div class="terminal">
+                    <div id="output"></div>
+                    <input type="text" id="commandInput" class="input" autofocus>
+                </div>
             </div>
+            <div id="mynetwork"></div>
         </div>
     </div>
 
